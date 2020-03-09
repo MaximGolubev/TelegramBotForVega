@@ -7,7 +7,7 @@ import os
 BOT = telebot.TeleBot(config.token)
 TOKEN = config.token
 USERDIRECTORY = os.getcwd()
-#PROXY =
+#PROXY = os.environ.get('PROXY')
 
 path_saved_files = f'{USERDIRECTORY}\\SavedInformation\\SavedFiles'
 path_saved_photos = f'{USERDIRECTORY}\\SavedInformation\\SavedPhotos'
