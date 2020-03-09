@@ -41,7 +41,7 @@ def repeat_all_messages(message: Message):
     BOT.send_message(message.chat.id, message.text)
 
 
-@BOT.message_handler(content_types=["document"])
+@BOT.message_handler(content_types=['document'])
 def repeat_all_messages(message: Message):
 
     try:
