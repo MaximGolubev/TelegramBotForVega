@@ -10,11 +10,13 @@ USERDIRECTORY = os.getcwd()
 #PROXY =
 
 path_saved_files = f'{USERDIRECTORY}\\SavedInformation\\SavedFiles'
+path_saved_photos = f'{USERDIRECTORY}\\SavedInformation\\SavedPhotos'
 #apihelper.proxy = {'https': PROXY}
 
 if not os.path.exists("SavedInformation"):
     os.mkdir("SavedInformation")
     os.mkdir(path_saved_files)
+    os.mkdir(path_saved_photos)
 
 
 @BOT.message_handler(commands=['start'])
@@ -49,6 +51,27 @@ def repeat_all_messages(message: Message):
         downloaded_file = BOT.download_file(file_info.file_path)
 
         src = path_saved_files + "/" + message.document.file_name
+        with open(src, 'wb') as new_file:
+            new_file.write(downloaded_file)
+            new_file.close()
+
+        BOT.send_message(message.chat.id, "Сохранение выполнено успешно")
+
+        document = open(src, 'rb')
+        BOT.send_document(message.chat.id, document)
+
+    except Exception as e:
+        BOT.reply_to(message, e)
+
+
+@BOT.message_handler(content_types=['photo'])
+def repeat_all_messages(message: Message):
+
+    try:
+        file_info = BOT.get_file(message.photo[0].file_id)
+        downloaded_file = BOT.download_file(file_info.file_path)
+
+        src = path_saved_photos + "/" + message.photo[0].file_id
         with open(src, 'wb') as new_file:
             new_file.write(downloaded_file)
             new_file.close()
