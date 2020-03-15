@@ -1,4 +1,5 @@
 config.py
 SavedInformation
 __pycache__
+data.json
 .idea
