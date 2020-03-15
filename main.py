@@ -1,18 +1,18 @@
 from telebot.types import Message
-# from telebot import apihelper
+#from telebot import apihelper
 import config
 import telebot
 import os
 
 
-TOKEN = config.token
+TOKEN = os.environ.get('TELEGRAM_BOT_FOR_VEGA_TOKEN')
+#PROXY = os.environ.get('PROXY_FOR_VEGA_BOT')
 USERDIRECTORY = os.getcwd()
-# PROXY = os.environ.get('PROXY')
 
-bot = telebot.TeleBot(config.token)
+bot = telebot.TeleBot(TOKEN)
 path_saved_files = "/".join(("SavedInformation", "SavedFiles"))
 path_saved_photos = "/".join(("SavedInformation", "SavedPhotos"))
-# apihelper.proxy = {'https': PROXY}
+#apihelper.proxy = {'https': PROXY}
 
 if not os.path.exists("SavedInformation"):
     os.mkdir("SavedInformation")
@@ -31,7 +31,6 @@ def send_list_of_commands(message: Message):
     bot.send_message(message.chat.id, "start - начало беседы с ботом\n" +
                      "help - полный список команд\n"
                      "specialInformation " + "- дополнительная информация")
-    # BOT.send_message(message.chat.id, "Директория:\n" + USERDIRECTORY)
 
 
 @bot.message_handler(commands=['specialInformation'])
