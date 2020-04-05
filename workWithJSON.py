@@ -104,6 +104,8 @@ def print_all_time_table_with_course(courseYear):
         if not group['group'].find(courseYear) == -1:
             timeTable += group['group'] + '\n\n\n'
             timeTable += search_by_group(group['group']) + '\n'
+    if timeTable == '':
+        return 'ERROR'
     return timeTable
 
 
@@ -117,6 +119,7 @@ def print_all_time_table():
 
 
 #------------------ВТОРОСТЕПЕННЫЕ ФУНКЦИИ------------------
+
 
 def week_to_string(codeDayWeek):
         if codeDayWeek == 0:
