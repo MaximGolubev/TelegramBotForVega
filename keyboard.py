@@ -1,3 +1,5 @@
+import strings
+
 import telebot
 import datetime
 
@@ -12,15 +14,14 @@ def determine_the_year():
 
 
 choiceMarkup = telebot.types.ReplyKeyboardMarkup(1)
-choiceMarkup.row("Поиск по группе")
-choiceMarkup.row("Поиск по подгруппе")
-choiceMarkup.row("Поиск по преподавателю")
-choiceMarkup.row("Вывод полного расписания")
+choiceMarkup.row(strings.SEARCH_BY_GROUP)
+choiceMarkup.row(strings.SEARCH_BY_SUBGROUP)
+choiceMarkup.row(strings.SEARCH_BY_TEACHER)
+choiceMarkup.row(strings.SEARCH_ALL_TIME_TABLE)
 
 choiceCourse = telebot.types.ReplyKeyboardMarkup(1)
 number = determine_the_year()
-choiceCourse.row("20" + str(number), "20" + str(number + 1))
-choiceCourse.row("20" + str(number + 2), "20" + str(number + 3))
-choiceCourse.row("20" + str(number + 4), "20" + str(number + 5))
+choiceCourse.row("20" + str(number), "20" + str(number - 1))
+choiceCourse.row("20" + str(number - 2), "20" + str(number - 3))
 choiceCourse.row("все")
 choiceCourse.row("выйти")

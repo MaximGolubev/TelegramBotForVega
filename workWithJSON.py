@@ -15,17 +15,13 @@ def search_group(group): #-Работает
 
 
 def search_by_group_and_date(group, dayWeek): #-Работает
-    #group.upper()
     groups = search_group(group)
-    #if group == 'ERROR':
-    #    return 'ERROR'
-    #else:
     jsonGroup = json.loads(groups)
 
     for day in jsonGroup:
         if day['day'] == dayWeek:
             return outputFormat(day)
-    return 'ERROR'
+    return 'Занятия отсутсвуют.'
 
 
 def search_by_group(group): #-Работает
@@ -34,10 +30,14 @@ def search_by_group(group): #-Работает
     timeTable = ''
     for day in arrayDays:
         text = search_by_group_and_date(group, day)
-        if not text == 'ERROR':
+        if not text == 'Занятия отсутсвуют.':
             #timeTable += arrayDays[indexDay] + '\n'
             timeTable += text + '\n'
             indexDay +=1
+        else:
+            timeTable += arrayDays[indexDay] + ':\n'
+            timeTable += text + '\n\n'
+            indexDay += 1
     return timeTable
 
 
@@ -53,7 +53,7 @@ def search_subject(teacher): #-Работает
 def search_by_teacher_and_date(teacher, dayWeek): #-Работает
     subject = search_subject(teacher)
     if subject == 'ERROR':
-        return 'ERROR'
+        return 'Такого учителя нет.'
     arrayPars = [False, False, False, False, False, False, False]
     strTimeTable = ['', '', '', '', '', '', '']
     for gr in data['groups']:
@@ -80,21 +80,31 @@ def search_by_teacher_and_date(teacher, dayWeek): #-Работает
         if arrayPars[i]:
             timeTable += strTimeTable[i] + '\n'
 
+
     if timeTable == dayWeek + ':\n':
-        return 'ERROR'
+        return 'Занятия отсутствуют.'
     else:
         #print(timeTable)
         return timeTable
 
 
 def search_by_teacher(teacher): #-Работает
-    arrayDays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС']
+    subject = search_subject(teacher)
+    if subject == 'ERROR':
+        return 'Такого учителя нет.'
 
+    arrayDays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС']
+    indexDay = 0
     timeTable = ''
     for day in arrayDays:
         str = search_by_teacher_and_date(teacher, day)
-        if not str == 'ERROR':
+        if not str == 'Занятия отсутствуют.':
             timeTable += str + '\n'
+            indexDay += 1
+        else:
+            timeTable += arrayDays[indexDay] + ':\n'
+            timeTable += str + '\n\n'
+            indexDay += 1
     return timeTable
 
 
@@ -102,8 +112,8 @@ def print_all_time_table_with_course(courseYear):
     timeTable = ''
     for group in data['groups']:
         if not group['group'].find(courseYear) == -1:
-            timeTable += group['group'] + '\n\n\n'
-            timeTable += search_by_group(group['group']) + '\n'
+            timeTable += group['group'] + '\n\n'
+            timeTable += search_by_group(group['group']) + '\n\n'
     if timeTable == '':
         return 'ERROR'
     return timeTable
@@ -149,5 +159,8 @@ def outputFormat(jsonDay):
     dayTimeTable = jsonDay['day'] + ':\n'
     for i in range(0, 7):
         dayTimeTable += strTimeTable[i]
+        if strTimeTable[i] == '':
+            dayTimeTable += str(i+1) + ' - '
+            dayTimeTable += 'пусто\n'
     #print(dayTimeTable)
     return dayTimeTable
