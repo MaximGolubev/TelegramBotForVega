@@ -1,10 +1,14 @@
 import workWithJSON as wJSON
 import keyboard as kb
 import strings
-import main
+import config
 
 import datetime
+import telebot
 from telebot.types import Message
+
+
+bot = telebot.TeleBot(config.token)
 
 whichWayIs = -1
 howManyParameters = [0, 0, 0, 0]
@@ -18,7 +22,7 @@ def general_func(message: Message):
     # Обработка выбора пути с ReplyKeyboardMarkup
     str = choose_way(message)
     if not str == '':
-        main.bot.send_message(message.chat.id, str)
+        bot.send_message(message.chat.id, str)
 
     # Работа с выводом информации--------------
     if whichWayIs == 0:
@@ -26,10 +30,10 @@ def general_func(message: Message):
         if howManyParameters[whichWayIs] == 0:
             stringOut = group_zero_parameters(message)
             if not stringOut == '':
-                main.bot.send_message(message.chat.id, stringOut)
+                bot.send_message(message.chat.id, stringOut)
         elif howManyParameters[whichWayIs] == 1:
             stringOut = group_one_parameter(message)
-            main.bot.send_message(message.chat.id, stringOut)
+            bot.send_message(message.chat.id, stringOut)
 
     elif whichWayIs == 1:
         print('2')
@@ -39,25 +43,25 @@ def general_func(message: Message):
         if howManyParameters[whichWayIs] == 0:
             stringOut = teacher_zero_parameters(message)
             if not stringOut == '':
-                main.bot.send_message(message.chat.id, stringOut)
+                bot.send_message(message.chat.id, stringOut)
         elif howManyParameters[whichWayIs] == 1:
             stringOut = teacher_one_parameter(message)
-            main.bot.send_message(message.chat.id, stringOut)
+            bot.send_message(message.chat.id, stringOut)
 
     elif whichWayIs == 3:
         print('4')
         if howManyParameters[whichWayIs] == 0:
-            main.bot.send_message(message.chat.id, strings.ENTER_COURSE_YEAR,
+            bot.send_message(message.chat.id, strings.ENTER_COURSE_YEAR,
                                   reply_markup=kb.choiceCourse)
             howManyParameters[whichWayIs] += 1
         elif howManyParameters[whichWayIs] == 1:
             strOut = all_time_table_one_parameters(message)
             if message.text == 'выйти':
-                main.bot.send_message(message.chat.id,
+                bot.send_message(message.chat.id,
                                       message.from_user.username + ' выберите:',
                                       reply_markup=kb.choiceMarkup)
             else:
-                main.bot.send_message(message.chat.id, strOut)
+                bot.send_message(message.chat.id, strOut)
 
 
 def choose_way(message: Message):

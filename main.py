@@ -2,6 +2,7 @@ import config
 import keyboard as kb
 import functions as f
 import strings
+import workWithDataBase as wDB
 
 import os
 import telebot
@@ -21,12 +22,15 @@ if not os.path.exists("SavedInformation"):
     os.mkdir(path_saved_files)
     os.mkdir(path_saved_photos)
 
+wDB.init_data_base()
+
 
 @bot.message_handler(commands=['start'])
 def process_start_command(message: Message):
     bot.send_message(message.from_user.id, 'Привет, '
                      + message.from_user.username + '!\nВыберите:',
                      reply_markup=kb.choiceMarkup)
+    wDB.add_user(chat_id=message.chat.id)
 
 
 @bot.message_handler(commands=['help'])
