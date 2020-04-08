@@ -1,5 +1,7 @@
 config.py
 SavedInformation
 __pycache__
+USERS_DATA_BASE.db
 data.json
 .idea
+workWithDataBase.py
