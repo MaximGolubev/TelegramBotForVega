@@ -4,4 +4,3 @@ __pycache__
 USERS_DATA_BASE.db
 data.json
 .idea
-workWithDataBase.py
