@@ -1,10 +1,9 @@
 import json
 
+
 with open('data.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
-
-#print (data_text['settings']['firstWeekDate'])
 
 def search_group(group): #-Работает
     group = group.upper()
