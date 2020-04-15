@@ -167,9 +167,9 @@ def when_b209_is_free():
         for i in range(0, 7):
             count = countPars[indexDay][i]
             if count == 0:
-                timeTable += str(i + 1) + " - свободна" + '\n'
+                timeTable += str(i + 1) + " - полностью свободна" + '\n'
             elif count == 1:
-                timeTable += str(i + 1) + " - (используется одной группой)" + '\n'
+                timeTable += str(i + 1) + " - свободна на половину" + '\n'
             else:
                 timeTable += str(i + 1) + " - занята" + '\n'
         timeTable += '\n'
