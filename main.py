@@ -8,7 +8,6 @@ import os
 import telebot
 from telebot.types import Message
 
-
 # TOKEN = os.environ.get('TELEGRAM_BOT_FOR_VEGA_TOKEN')
 TOKEN = config.token
 USERDIRECTORY = os.getcwd()
@@ -30,11 +29,12 @@ def process_start_command(message: Message):
 
 @bot.message_handler(commands=['setnew'])
 def time_table_changed(message: Message):
-    if(f.isAdmin(message.chat.id)):
+    if (f.isAdmin(message.chat.id)):
         str = message.text.split(' ')
         option = ''
         if len(str) > 1:
-            option = str[1]
+            for i in range(1, len(str)):
+                option += str[i] + ' '
         f.sendNotif(option)
         print(message.chat.id)
         print('/setnew ' + option)
@@ -54,6 +54,7 @@ def send_list_of_commands(message: Message):
 
 @bot.message_handler(content_types=['text'])
 def repeat_message(message: Message):
+    wDB.add_user(chat_id=message.chat.id)
     f.general_func(message)
     print(message.chat.id)
     print('/text')

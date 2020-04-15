@@ -1,6 +1,5 @@
 import sqlite3
 
-
 CONNECTION_USERS_DB = None
 CONNECTION_ADMINS_DB = None
 

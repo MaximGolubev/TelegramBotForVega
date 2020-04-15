@@ -69,7 +69,7 @@ def general_func(message: Message):
                     print(l)
                     if l == 6:
                         for i in range(0, l):
-                            #print(strOut[i] + "=========================================================================")
+                            # print(strOut[i] + "=========================================================================")
                             if not strOut[i] == '':
                                 bot.send_message(message.chat.id, strOut[i])
                     else:
@@ -136,7 +136,7 @@ def group_one_parameter(message: Message):
         return group
     else:
         try:
-            #arrayData = message.text.split('.')
+            # arrayData = message.text.split('.')
             arrayData = data_to_array(message.text)
             date = datetime.datetime(int(arrayData[2]), int(arrayData[1]), int(arrayData[0]))
             group = wJSON.search_by_group_and_date(arrayGroup[0], wJSON.week_to_string(date.weekday()))
@@ -247,7 +247,7 @@ def data_to_array(strData):
         return array
 
 
-def sendNotif(str):
+def sendNotif(s):
     connection = wDB.get_connection_to_users_data_base()
     db = connection.cursor()
     db.execute("SELECT * FROM all_users_chat_id")
@@ -261,9 +261,9 @@ def sendNotif(str):
 
             chat_id = row[1]
             try:
-                bot.send_message(chat_id, str + "\n" + strings.MESSAGE_SEND_NOTIFICATION)
+                bot.send_message(chat_id, s + "\n" + strings.MESSAGE_SEND_NOTIFICATION)
             except:
-                print("В chat_id:" + str(chat_id) + "уведомление отправлено не было")
+                print("В chat_id:" + str(chat_id) + " уведомление отправлено не было")
 
 
 def isAdmin(id):
