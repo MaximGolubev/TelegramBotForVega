@@ -1,7 +1,7 @@
 import config
-import keyboard as kb
 import functions as f
 import strings
+import keyboard as kb
 import workWithDataBase as wDB
 
 import os
@@ -14,13 +14,6 @@ TOKEN = config.token
 USERDIRECTORY = os.getcwd()
 
 bot = telebot.TeleBot(TOKEN)
-path_saved_files = "/".join(("SavedInformation", "SavedFiles"))
-path_saved_photos = "/".join(("SavedInformation", "SavedPhotos"))
-
-if not os.path.exists("SavedInformation"):
-    os.mkdir("SavedInformation")
-    os.mkdir(path_saved_files)
-    os.mkdir(path_saved_photos)
 
 wDB.init_data_base()
 
@@ -31,16 +24,40 @@ def process_start_command(message: Message):
                      + message.from_user.username + '!\nВыберите:',
                      reply_markup=kb.choiceMarkup)
     wDB.add_user(chat_id=message.chat.id)
+    print(message.chat.id)
+    print('/start')
+
+
+@bot.message_handler(commands=['setnew'])
+def time_table_changed(message: Message):
+    if(f.isAdmin(message.chat.id)):
+        str = message.text.split(' ')
+        option = ''
+        if len(str) > 1:
+            option = str[1]
+        f.sendNotif(option)
+        print(message.chat.id)
+        print('/setnew ' + option)
+    else:
+        print("----- ВНИМАНИЕ!!! "
+              "\n----- пользователь, НЕ ЯВЛЯЮЩИЙСЯ АДМИНОМ использовал 'setnew'"
+              "\n----- chat_id: " + str(message.chat.id)
+              + "\n----- username: " + str(message.from_user.username))
 
 
 @bot.message_handler(commands=['help'])
 def send_list_of_commands(message: Message):
     bot.send_message(message.chat.id, strings.INSTROUCTIONS_HELP)
+    print(message.chat.id)
+    print('/help')
 
 
 @bot.message_handler(content_types=['text'])
 def repeat_message(message: Message):
     f.general_func(message)
+    print(message.chat.id)
+    print('/text')
+    print("'" + message.text + "'")
 
 
 if __name__ == '__main__':

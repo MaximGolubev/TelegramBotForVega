@@ -1,12 +1,18 @@
 import json
 
 
-with open('data.json', 'r', encoding='utf-8') as f:
+with open('dataTest.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 
-def search_group(group): #-Работает
-    group = group.upper()
+def search_group(g): #-Работает
+    if len(g) == 10:
+        gr = g[:4] + "-" + g[5:7] + "-" + g[8:]
+    elif len(g) == 8:
+        gr = g[:4] + "-" + g[4:6] + "-" + g[6:]
+    else:
+        return 'ERROR'
+    group = gr.upper()
     for gr in data['groups']:
         if gr['group'] == group:
             return json.dumps(gr['days'], indent=4, ensure_ascii=False)
@@ -42,7 +48,7 @@ def search_by_group(group): #-Работает
 
 def search_subject(teacher): #-Работает
     for pattern in data['patterns']:
-        if not pattern['pr'] == '' and not pattern['pr'].upper().find(teacher.upper()) == -1:
+        if 'pr' in pattern and not pattern['pr'] == '' and not pattern['pr'].upper().find(teacher.upper()) == -1:
             print("Учитель существует")
             print(pattern['search'])
             return pattern['search']
@@ -107,10 +113,10 @@ def search_by_teacher(teacher): #-Работает
     return timeTable
 
 
-def print_all_time_table_with_course(courseYear):
+def print_all_time_table_with_course(strGroup, courseYear):
     timeTable = ''
     for group in data['groups']:
-        if not group['group'].find(courseYear) == -1:
+        if not group['group'].find(courseYear) == -1 and not group['group'].find(strGroup) == -1:
             timeTable += group['group'] + '\n\n'
             timeTable += search_by_group(group['group']) + '\n\n'
     if timeTable == '':
@@ -119,12 +125,57 @@ def print_all_time_table_with_course(courseYear):
 
 
 def print_all_time_table():
-    timeTable = ''
+    timeTable = ['', '', '', '', '', '']
+    a = 0
+    index = 0
+    lastTwo = ''
     for group in data['groups']:
-        timeTable += group['group'] + '\n\n'
-        timeTable += search_by_group(group['group']) + '\n'
-        #print(timeTable)
+        if lastTwo.find(str(group['group'])[8:]) == -1 and a != 0:
+            #print("zashel = " + str(index) + " - " + str(group['group']))
+            index += 1
+        timeTable[index] += group['group'] + '\n\n'
+        timeTable[index] += search_by_group(group['group']) + '\n'
+        lastTwo = str(group['group'])[8:]
+        a += 1
+
     return timeTable
+
+
+def when_b209_is_free():
+    countPars = [[0] * 7] * 7
+    for i in range(0, 7):
+        for j in range(0, 7):
+            countPars[i][j] = 0
+    arrayDays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС']
+    indexDay = 0
+
+    for gr in data['groups']:
+        # print(gr['group'])
+        for day in gr['days']:
+            for lesson in day['pars']:
+                indexPars = int(lesson['number']) - 1
+                if not lesson['place'].find('Б-209') == -1:
+                    print(arrayDays[indexDay] + " " + str(indexPars + 1))
+                    countPars[indexDay][indexPars] += 1
+            indexDay += 1
+        indexDay = 0
+
+    timeTable = ''
+    indexDay = 0
+    for dayWeek in arrayDays:
+        timeTable += dayWeek + ':\n'
+        for i in range(0, 7):
+            count = countPars[indexDay][i]
+            if count == 0:
+                timeTable += str(i + 1) + " - свободна" + '\n'
+            elif count == 1:
+                timeTable += str(i + 1) + " - (используется одной группой)" + '\n'
+            else:
+                timeTable += str(i + 1) + " - занята" + '\n'
+        timeTable += '\n'
+        indexDay += 1
+    return timeTable
+
 
 
 #------------------ВТОРОСТЕПЕННЫЕ ФУНКЦИИ------------------
