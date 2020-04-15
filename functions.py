@@ -1,3 +1,5 @@
+import time
+
 import workWithJSON as wJSON
 import workWithDataBase as wDB
 import keyboard as kb
@@ -249,16 +251,19 @@ def sendNotif(str):
     connection = wDB.get_connection_to_users_data_base()
     db = connection.cursor()
     db.execute("SELECT * FROM all_users_chat_id")
+    timing = time.time()
     while True:
-        row = db.fetchone()
-        if row == None:
-            break
+        if time.time() - timing > 0.05:
+            timing = time.time()
+            row = db.fetchone()
+            if row == None:
+                break
 
-        chat_id = row[1]
-        try:
-            bot.send_message(chat_id, str + "\n" + strings.MESSAGE_SEND_NOTIFICATION)
-        except:
-            print("В chat_id:" + str(chat_id) + "уведомление отправлено не было")
+            chat_id = row[1]
+            try:
+                bot.send_message(chat_id, str + "\n" + strings.MESSAGE_SEND_NOTIFICATION)
+            except:
+                print("В chat_id:" + str(chat_id) + "уведомление отправлено не было")
 
 
 def isAdmin(id):
