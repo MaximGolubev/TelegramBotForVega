@@ -5,11 +5,8 @@ with open('dataTest.json', 'r', encoding='utf-8') as f:
 
 
 def search_group(g):  # -Работает
-    if len(g) == 10:
-        gr = g[:4] + "-" + g[5:7] + "-" + g[8:]
-    elif len(g) == 8:
-        gr = g[:4] + "-" + g[4:6] + "-" + g[6:]
-    else:
+    gr = text_to_group(g)
+    if gr == 'ERROR':
         return 'ERROR'
     group = gr.upper()
     for gr in data['groups']:
@@ -48,8 +45,8 @@ def search_by_group(group):  # -Работает
 def search_subject(teacher):  # -Работает
     for pattern in data['patterns']:
         if 'pr' in pattern and not pattern['pr'] == '' and not pattern['pr'].upper().find(teacher.upper()) == -1:
-            print("Учитель существует")
-            print(pattern['search'])
+            #print("Учитель существует")
+            #print(pattern['search'])
             return pattern['search']
     return 'ERROR'
 
@@ -211,3 +208,22 @@ def outputFormat(jsonDay):
             dayTimeTable += 'пусто\n'
     # print(dayTimeTable)
     return dayTimeTable
+
+
+def text_to_group(text):
+    if len(text) == 10:
+        gr = text[:4] + "-" + text[5:7] + "-" + text[8:]
+    elif len(text) == 8:
+        gr = text[:4] + "-" + text[4:6] + "-" + text[6:]
+    else:
+        return 'ERROR'
+    return gr
+
+
+def search_teacher(teacher):  # -Работает
+    for pattern in data['patterns']:
+        if 'pr' in pattern and not pattern['pr'] == '' and not pattern['pr'].upper().find(teacher.upper()) == -1:
+            #print("Учитель существует")
+            #print(pattern['search'])
+            return pattern['pr']
+    return 'ERROR'

@@ -1,7 +1,10 @@
+from telebot import types
+
 import config
 import functions as f
 import strings
 import keyboard as kb
+import inlineRealization as iRz
 import workWithDataBase as wDB
 
 import os
@@ -59,6 +62,26 @@ def repeat_message(message: Message):
     print(message.chat.id)
     print('/text')
     print("'" + message.text + "'")
+
+
+@bot.inline_handler(func=lambda query: len(query.query) > 0)
+def query_text(query):
+    print('query: ' + query.query)
+    strOut = iRz.general_func(query)
+    if not strOut == 'ERROR':
+        out = types.InlineQueryResultArticle(
+            id='1', title=iRz.strDescipt,
+            description=iRz.strMore,
+            input_message_content=types.InputTextMessageContent(message_text=strOut))
+        bot.answer_inline_query(query.id, [out])
+
+    else:
+        out = types.InlineQueryResultArticle(
+            id='1', title='Нет информации',
+            description='Нет информации',
+            input_message_content=types.InputTextMessageContent(message_text='Нет информации'))
+        bot.answer_inline_query(query.id, [out])
+
 
 
 if __name__ == '__main__':
