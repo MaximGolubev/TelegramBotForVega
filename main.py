@@ -26,8 +26,8 @@ def process_start_command(message: Message):
                      + message.from_user.username + '!\nВыберите:',
                      reply_markup=kb.choiceMarkup)
     wDB.add_user(chat_id=message.chat.id)
-    print(message.chat.id)
-    print('/start')
+    print('+ in bot: ' + str(message.chat.id))
+    print('+ in bot: ' + '/start')
 
 
 @bot.message_handler(commands=['setnew'])
@@ -39,8 +39,8 @@ def time_table_changed(message: Message):
             for i in range(1, len(str)):
                 option += str[i] + ' '
         f.sendNotif(option)
-        print(message.chat.id)
-        print('/setnew ' + option)
+        print('+ in bot: ' + str(message.chat.id))
+        print('+ in bot: ' + '/setnew ' + option)
     else:
         print("----- ВНИМАНИЕ!!! "
               "\n----- пользователь, НЕ ЯВЛЯЮЩИЙСЯ АДМИНОМ использовал 'setnew'"
@@ -51,17 +51,17 @@ def time_table_changed(message: Message):
 @bot.message_handler(commands=['help'])
 def send_list_of_commands(message: Message):
     bot.send_message(message.chat.id, strings.INSTROUCTIONS_HELP)
-    print(message.chat.id)
-    print('/help')
+    print('+ in bot: ' + str(message.chat.id))
+    print('+ in bot: ' + '/help')
 
 
 @bot.message_handler(content_types=['text'])
 def repeat_message(message: Message):
     wDB.add_user(chat_id=message.chat.id)
     f.general_func(message)
-    print(message.chat.id)
-    print('/text')
-    print("'" + message.text + "'")
+    print('+ in bot: ' + str(message.chat.id))
+    print('+ in bot: ' + '/text')
+    print('+ in bot: ' + "'" + message.text + "'")
 
 
 @bot.inline_handler(func=lambda query: len(query.query) > 0)
@@ -81,7 +81,6 @@ def query_text(query):
             description='Нет информации',
             input_message_content=types.InputTextMessageContent(message_text='Нет информации'))
         bot.answer_inline_query(query.id, [out])
-
 
 
 if __name__ == '__main__':

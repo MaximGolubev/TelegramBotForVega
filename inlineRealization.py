@@ -1,5 +1,5 @@
 import datetime
-import types
+
 
 import workWithJSON as wJSON
 import functions as f
@@ -45,7 +45,7 @@ def len_one(arrayCommands):
     global strMore
     if (arrayCommands[0][0:4] == 'КММО' or arrayCommands[0][0:4] == 'КМБО') and not wJSON.search_group(
             arrayCommands[0]) == 'ERROR':
-        print('1 - по группе')
+        print('query: ' + '1 - по группе')
         strOut = wJSON.search_by_group(arrayCommands[0])
         if strOut == '':
             return 'ERROR'
@@ -54,7 +54,7 @@ def len_one(arrayCommands):
         return strOut
     elif not wJSON.search_teacher(arrayCommands[0]) == 'ERROR':
         teacher = wJSON.search_teacher(arrayCommands[0])
-        print('1 - по преподавателю')
+        print('query: ' + '1 - по преподавателю')
         strOut = wJSON.search_by_teacher(arrayCommands[0])
         if strOut == '':
             return 'ERROR'
@@ -70,7 +70,7 @@ def len_two(arrayCommands):
     global strMore
     if (arrayCommands[0][0:4] == 'КММО' or arrayCommands[0][0:4] == 'КМБО') \
             and not wJSON.search_group(arrayCommands[0]) == 'ERROR':
-        print('2 - по группе')
+        print('query: ' + '2 - по группе')
         if arrayCommands[1] == '1':
             date = datetime.datetime.today()
             strOut = wJSON.search_by_group_and_date(arrayCommands[0], wJSON.week_to_string(date.weekday()))
@@ -92,7 +92,7 @@ def len_two(arrayCommands):
 
     elif not wJSON.search_teacher(arrayCommands[0]) == 'ERROR':
         teacher = wJSON.search_teacher(arrayCommands[0])
-        print('2 - по преподавателю')
+        print('query: ' + '2 - по преподавателю')
         if arrayCommands[1] == '1':
             date = datetime.datetime.today()
             strOut = wJSON.search_by_teacher_and_date(arrayCommands[0], wJSON.week_to_string(date.weekday()))

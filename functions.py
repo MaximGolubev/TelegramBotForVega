@@ -29,7 +29,7 @@ def general_func(message: Message):
 
     # Работа с выводом информации--------------
     if whichWayIs == 0:
-        print('Поиск по группе')
+        print('+ in bot: ' + 'Поиск по группе')
         if howManyParameters[whichWayIs] == 0:
             stringOut = group_zero_parameters(message)
             if not stringOut == '':
@@ -40,7 +40,7 @@ def general_func(message: Message):
 
 
     elif whichWayIs == 1:
-        print('Поиск по преподавателю')
+        print('+ in bot: ' + 'Поиск по преподавателю')
         if howManyParameters[whichWayIs] == 0:
             stringOut = teacher_zero_parameters(message)
             if not stringOut == '':
@@ -51,7 +51,7 @@ def general_func(message: Message):
 
 
     elif whichWayIs == 2:
-        print('Вывод всего расписания')
+        print('+ in bot: ' + 'Вывод всего расписания')
         if howManyParameters[whichWayIs] == 0:
             bot.send_message(message.chat.id, strings.ENTER_COURSE_YEAR,
                              reply_markup=kb.choiceCourse)
@@ -66,7 +66,7 @@ def general_func(message: Message):
                                      reply_markup=kb.choiceMarkup)
                 else:
                     l = len(strOut)
-                    print(l)
+                    # print(l)
                     if l == 6:
                         for i in range(0, l):
                             # print(strOut[i] + "=========================================================================")
@@ -78,7 +78,7 @@ def general_func(message: Message):
                 bot.send_message(message.chat.id, strings.MESSAGE_ERROR_ALL_TIME_TABLE)
 
     elif whichWayIs == 3:
-        print('Когда свободна Б-209?')
+        print('+ in bot: ' + 'Когда свободна Б-209?')
         bot.send_message(message.chat.id, wJSON.when_b209_is_free())
         whichWayIs = -1
 
@@ -263,7 +263,7 @@ def sendNotif(s):
             try:
                 bot.send_message(chat_id, s + "\n" + strings.MESSAGE_SEND_NOTIFICATION)
             except:
-                print("В chat_id:" + str(chat_id) + " уведомление отправлено не было")
+                print("----- в chat_id:" + str(chat_id) + " уведомление отправлено не было")
 
 
 def isAdmin(id):
