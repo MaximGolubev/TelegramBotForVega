@@ -16,8 +16,8 @@ ENTER_SUBGROUP = ""
 MESSAGE_ERROR_GROUP = "Такой группы не существует."
 MESSAGE_ERROR_TEACHER = "Такой преподаватель у нас не работает("
 MESSAGE_ERROR_ALL_TIME_TABLE = "Выберите снова."
-MESSAGE_SEND_NOTIFICATION_first = "Расписание на БК-536 изменилось!" \
-                                  "\nПроверьте его здесь или на официальном сайте:" \
+MESSAGE_SEND_NOTIFICATION_first = "Расписание на БК-536 изменилось!\n"
+MESSAGE_SEND_NOTIFICATION_second = "\nПроверьте его здесь или на официальном сайте:" \
                                   "\nhttp://www.vega.fcyb.mirea.ru/"
 
 INSTROUCTIONS_HELP = "help - дерево параметров поиска\n" \

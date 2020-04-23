@@ -221,9 +221,46 @@ def text_to_group(text):
 
 
 def search_teacher(teacher):  # -Работает
+    teacher.upper()
+    arrayTeachersOut = []
+    #print('\t' + teacher + ': ')
     for pattern in data['patterns']:
-        if 'pr' in pattern and not pattern['pr'] == '' and not pattern['pr'].upper().find(teacher.upper()) == -1:
-            #print("Учитель существует")
-            #print(pattern['search'])
-            return pattern['pr']
-    return 'ERROR'
+        if 'pr' in pattern and not pattern['pr'] == '' and not pattern['pr'].upper().find(teacher) == -1:
+            arrayTeachersOut.append(pattern['pr'])
+            #print('\t\t' + pattern['pr'])
+    return arrayTeachersOut
+
+
+def search_group_by_one_part(strGr):
+    group = strGr.upper()
+    arrayGroupsOut = []
+    #print('\t' + strGr + ': ')
+    for gr in data['groups']:
+        if gr['group'][0:4] == group:
+            arrayGroupsOut.append(gr['group'])
+            #print('\t\t' + gr['group'])
+    return arrayGroupsOut
+
+
+def search_group_by_two_parts(strGr, strOne):
+    arrayGroupsIn = search_group_by_one_part(strGr)
+    l = len(arrayGroupsIn)
+    arrayGroupsOut = []
+    #print('\t' + strGr + '-' + strOne + ': ')
+    for i in range(0, l):
+        if not arrayGroupsIn[i][5:7].find(strOne) == -1:
+            arrayGroupsOut.append(arrayGroupsIn[i])
+            #print('\t\t' + arrayGroupsIn[i])
+    return arrayGroupsOut
+
+
+def search_group_by_three_parts(strGr, strOne, strTwo):
+    arrayGroupsIn = search_group_by_two_parts(strGr, strOne)
+    l = len(arrayGroupsIn)
+    arrayGroupsOut = []
+    #print('\t' + strGr + '-' + strOne + '-' + strTwo + ': ')
+    for i in range(0, l):
+        if not arrayGroupsIn[i][8:].find(strTwo) == -1:
+            arrayGroupsOut.append(arrayGroupsIn[i])
+            #print('\t\t' + arrayGroupsIn[i])
+    return arrayGroupsOut

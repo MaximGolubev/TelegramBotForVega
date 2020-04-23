@@ -261,7 +261,7 @@ def sendNotif(s):
 
             chat_id = row[1]
             try:
-                bot.send_message(chat_id, s + "\n" + strings.MESSAGE_SEND_NOTIFICATION)
+                bot.send_message(chat_id, strings.MESSAGE_SEND_NOTIFICATION_first + s + strings.MESSAGE_SEND_NOTIFICATION_second)
             except:
                 print("----- в chat_id:" + str(chat_id) + " уведомление отправлено не было")
 
