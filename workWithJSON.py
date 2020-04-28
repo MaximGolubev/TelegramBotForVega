@@ -1,7 +1,45 @@
 import json
 
-with open('dataTest.json', 'r', encoding='utf-8') as f:
-    data = json.load(f)
+# тут все оборачиваем в классы
+# примерно так, но надо будет шлифовать
+
+
+''' 
+Это интерфейс для классов, которые будут получать данные 
+Сейчас ваш провайдер - тестовый файл, но потом им может стать сервер,
+поэтому выделяем этот кусок
+'''
+
+
+class AbstractProvider:
+    # тут опишите методы, которые вам нужны: search_group и т.д.
+    def search_group(self, group):
+        pass
+
+
+class FileProvider(AbstractProvider):
+    # тут реализация методов интерфейса
+    def __init__(self):
+        with open('dataTest.json', 'r', encoding='utf-8') as f:
+            self.data = json.load(f)
+
+    def search_group(self, group):
+        pass
+
+
+''' Этот класс будет преобразовывать куски JSON в текстовые данные '''
+
+
+class JsonFormatter:
+    # используем иньекцию зависимостей (Dependency Injection):
+    # за поставку данных отвечает другой объект, когда появится API - воткнем сервак
+    def __init__(self, provider: AbstractProvider):
+        self.provider = provider
+        # ...
+
+
+
+
 
 
 def search_group(g):  # -Работает

@@ -12,6 +12,10 @@ from telebot.types import Message
 
 bot = telebot.TeleBot(config.token)
 
+# whichWayIs - это состояние, в котором мы находимся?
+# если да, эта штука не будет работать при одновременной работе нескольких юзеров
+# (будут воровать друг у друга состояние)
+# Надо сохранять состояние в словаре или БД (vedis, redis)
 whichWayIs = -1
 howManyParameters = [0, 0, 0, 0]
 arrayGroup = ['']
@@ -23,7 +27,7 @@ arrayAllTimeTable = ['']
 def general_func(message: Message):
     # Обработка выбора пути с ReplyKeyboardMarkup
     global whichWayIs
-    str = choose_way(message)
+    str = choose_way(message) # str это тип, переименовать
     if not str == '':
         bot.send_message(message.chat.id, str)
 
@@ -82,7 +86,7 @@ def general_func(message: Message):
         bot.send_message(message.chat.id, wJSON.when_b209_is_free())
         whichWayIs = -1
 
-
+# разбить на отдельные хендлеры: код будет прозрачнее
 def choose_way(message: Message):
     global whichWayIs
     if message.text == strings.SEARCH_BY_GROUP:
@@ -123,7 +127,7 @@ def group_zero_parameters(message: Message):
     else:
         return ''
 
-
+# разбить на отдельные хендлеры: код будет прозрачнее
 def group_one_parameter(message: Message):
     if message.text == '1':
         date = datetime.datetime.today()

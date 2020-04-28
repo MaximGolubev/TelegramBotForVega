@@ -1,18 +1,16 @@
 import config
-import functions as f
+import functions as f               # terrible alias
 import strings
 import keyboard as kb
 import inlineRealization as iRz
 import workWithDataBase as wDB
 
-import os
 import telebot
 from telebot import types
 from telebot.types import Message
 
 # TOKEN = os.environ.get('TELEGRAM_BOT_FOR_VEGA_TOKEN')
 TOKEN = config.token
-USERDIRECTORY = os.getcwd()
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -21,17 +19,20 @@ wDB.init_data_base()
 
 @bot.message_handler(commands=['start'])
 def process_start_command(message: Message):
-    bot.send_message(message.from_user.id, 'Привет, '
-                        + message.from_user.username + '!\nВыберите:',
-                        reply_markup=kb.choiceMarkup)
+    bot.send_message(message.from_user.id,
+                     '\n'.join([f'Привет, {message.from_user.username}!',
+                                'Выберите:']),
+                     reply_markup=kb.choiceMarkup)
     wDB.add_user(chat_id=message.chat.id)
-    print('+ in bot: ' + str(message.chat.id) + ' ' + str(message.from_user.username))
-    print('+ in bot: ' + '/start')
+
+    # add to event-log
+    # print('+ in bot: ' + str(message.chat.id) + ' ' + str(message.from_user.username))
+    # print('+ in bot: ' + '/start')
 
 
 @bot.message_handler(commands=['setnew'])
 def time_table_changed(message: Message):
-    if (f.isAdmin(message.chat.id)):
+    if f.isAdmin(message.chat.id):
         str = message.text.split(' ')
         option = ''
         if len(str) > 1:
@@ -41,6 +42,8 @@ def time_table_changed(message: Message):
         print('+ in bot: ' + str(message.chat.id))
         print('+ in bot: ' + '/setnew ' + option)
     else:
+        # add to log
+        # use format-strings
         print("----- ВНИМАНИЕ!!! \n----- пользователь, НЕ ЯВЛЯЮЩИЙСЯ АДМИНОМ использовал"
               "'setnew'\n----- chat_id: " + str(message.chat.id)
               + "\n----- username: " + str(message.from_user.username))

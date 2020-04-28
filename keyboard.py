@@ -20,6 +20,8 @@ choiceMarkup.row(strings.SEARCH_BY_B209)
 
 choiceCourse = telebot.types.ReplyKeyboardMarkup(1)
 number = determine_the_year()
+
+# use format-strings
 STRBUTTONSTHIRD_1 = "20" + str(number) + " (бакалавриат)"
 STRBUTTONSTHIRD_2 = "20" + str(number - 1) + " (бакалавриат)"
 STRBUTTONSTHIRD_3 = "20" + str(number - 2) + " (бакалавриат)"
