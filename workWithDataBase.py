@@ -4,6 +4,9 @@ CONNECTION_USERS_DB = None
 CONNECTION_ADMINS_DB = None
 
 
+''' Тут нужно обернуть все в класс BDWorker '''
+
+
 def get_connection_to_users_data_base():
     global CONNECTION_USERS_DB
     if CONNECTION_USERS_DB is None:
