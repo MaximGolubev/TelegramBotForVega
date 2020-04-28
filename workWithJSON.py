@@ -19,9 +19,9 @@ class AbstractProvider:
 
 class FileProvider(AbstractProvider):
     # тут реализация методов интерфейса
-    def __init__(self):
-        with open('dataTest.json', 'r', encoding='utf-8') as f:
-            self.data = json.load(f)
+    def __init__(self, filename: str):
+        with open(filename, 'r', encoding='utf-8') as file:
+            self.data = json.load(file)
 
     def search_group(self, group):
         pass
