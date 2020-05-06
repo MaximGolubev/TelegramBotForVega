@@ -47,14 +47,14 @@ class FileProvider(AbstractProvider):
 
 
 class JsonFormatter:
-    def __init__(self, provider: FileProvider, filename: str):
-        if provider == FileProvider:
-            self.provider = FileProvider(filename)
-        elif provider == ServerProvider:
-            self.provider = ServerProvider()
-        else:
-            self.provider = '\0'
-        # ...
+    def __init__(self, provider: FileProvider):
+        self.provider = provider
+
+    def search_group(self, group):
+        return self.provider.search_group(group)
+
+    def search_subject(self, teacher):
+        return self.provider.search_subject(teacher)
 
     def search_by_group_and_date(self, group, dayWeek):  # -Работает
         groups = self.provider.search_group(group)
@@ -62,7 +62,7 @@ class JsonFormatter:
 
         for day in jsonGroup:
             if day['day'] == dayWeek:
-                return outputFormat(day)
+                return self.outputFormat(day)
         return 'Занятия отсутсвуют.'
 
     def search_by_group(self, group):  # -Работает
@@ -224,6 +224,22 @@ class JsonFormatter:
                 arrayGroupsOut.append(arrayGroupsIn[i])
         return arrayGroupsOut
 
+    def outputFormat(self, jsonDay):
+        strTimeTable = ['', '', '', '', '', '', '']
+        for lesson in jsonDay['pars']:
+            numberLesson = lesson['number'] - 1
+            strTimeTable[numberLesson] += str(lesson["number"]) + ' - '
+            strTimeTable[numberLesson] += lesson['name'] + ' - '
+            strTimeTable[numberLesson] += lesson['place'] + '\n'
+
+        dayTimeTable = jsonDay['day'] + ':\n'
+        for i in range(0, 7):
+            dayTimeTable += strTimeTable[i]
+            if strTimeTable[i] == '':
+                dayTimeTable += f'{i + 1} - '
+                dayTimeTable += 'пусто\n'
+        return dayTimeTable
+
 # ------------------ВТОРОСТЕПЕННЫЕ ФУНКЦИИ------------------
 
 
@@ -242,23 +258,6 @@ def week_to_string(codeDayWeek):
         return 'СБ'
     else:
         return 'ВС'
-
-
-def outputFormat(jsonDay):
-    strTimeTable = ['', '', '', '', '', '', '']
-    for lesson in jsonDay['pars']:
-        numberLesson = lesson['number'] - 1
-        strTimeTable[numberLesson] += str(lesson["number"]) + ' - '
-        strTimeTable[numberLesson] += lesson['name'] + ' - '
-        strTimeTable[numberLesson] += lesson['place'] + '\n'
-
-    dayTimeTable = jsonDay['day'] + ':\n'
-    for i in range(0, 7):
-        dayTimeTable += strTimeTable[i]
-        if strTimeTable[i] == '':
-            dayTimeTable += f'{i + 1} - '
-            dayTimeTable += 'пусто\n'
-    return dayTimeTable
 
 
 def text_to_group(text):

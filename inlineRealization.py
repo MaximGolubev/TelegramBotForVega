@@ -6,8 +6,7 @@ import re
 import datetime
 from telebot import types
 
-jsonFormatter = wJSON.JsonFormatter(wJSON.FileProvider, "dataTest.json")
-fileProvider = wJSON.FileProvider("dataTest.json")
+jsonFormatter = wJSON.JsonFormatter(wJSON.FileProvider("dataTest.json"))
 
 def general_func(query):
     textIn = query.query

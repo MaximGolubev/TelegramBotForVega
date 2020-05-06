@@ -12,9 +12,7 @@ import telebot
 from telebot.types import Message
 
 bot = telebot.TeleBot(config.token)
-
-jsonFormatter = wJSON.JsonFormatter(wJSON.FileProvider, "dataTest.json")
-fileProvider = wJSON.FileProvider("dataTest.json")
+jsonFormatter = wJSON.JsonFormatter(wJSON.FileProvider("dataTest.json"))
 
 def general_func(message: Message):
     # Обработка выбора пути с ReplyKeyboardMarkup
@@ -130,7 +128,7 @@ def group_zero_parameters(message: Message):
     row = dataBase.get_row_by_id(message.from_user.id)
     list = row_to_list(row)
 
-    gr = fileProvider.search_group(message.text)
+    gr = jsonFormatter.search_group(message.text)
     if not gr == 'ERROR':
         list[5] = message.text.upper()
         list[4] += 1
@@ -167,7 +165,7 @@ def teacher_zero_parameters(message: Message):
     main.loggerDEBUG.debug('поиск по преподавателю (0)')
     row = dataBase.get_row_by_id(message.from_user.id)
     list = row_to_list(row)
-    tch = fileProvider.search_subject(message.text)
+    tch = jsonFormatter.search_subject(message.text)
     if not tch == 'ERROR':
         list[6] = message.text.upper()
         list[4] += 1
