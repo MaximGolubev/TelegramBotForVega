@@ -1,6 +1,5 @@
 import sqlite3
 
-
 ''' Тут нужно обернуть все в класс BDWorker '''
 
 
@@ -61,17 +60,15 @@ class FileDBWork(AbstractDBWork):
         return self.CONNECTION_ADMINS_DB
 
     def add_user(self, user_id: int, chat_id: int):
-        # main.loggerDEBUG.debug('создать пользователя')
         connection = self.CONNECTION_USERS_DB
         c = connection.cursor()
         try:
             c.execute('INSERT INTO all_users (user_id, chat_id) VALUES (?, ?)', (user_id, chat_id,))
             connection.commit()
             c.close()
-            # main.loggerDEBUG.debug(f'----- DATA-BASE новый chat_id: "{user_id}"')
         except:
+            connection.commit()
             c.close()
-            # main.loggerDEBUG.debug(f'----- DATA-BASE chat_id: "{user_id}" уже сущетсвует')
 
     def get_row_by_id(self, user_id):
         connection = self.CONNECTION_USERS_DB
@@ -84,26 +81,17 @@ class FileDBWork(AbstractDBWork):
             u_id = row[1]
             if user_id == u_id:
                 db.close()
+                connection.commit()
                 return row
+        connection.commit()
         db.close()
         return 'ERROR'
 
     def edit_row(self, index, row):
         connection = self.CONNECTION_USERS_DB
         db = connection.cursor()
-        db.execute('UPDATE all_users SET way = ?, '
-                   'count_par = ?, '
-                   'name_group = ?, '
-                   'name_teacher = ?  '
-                   'WHERE id=?', (row[3], row[4], row[5], row[6], index))
+        db.execute("""UPDATE all_users 
+                      SET way = ?, count_par = ?, name_group = ?, name_teacher = ?
+                      WHERE id=?""", (row[3], row[4], row[5], row[6], index))
         connection.commit()
-
-        # db.execute('UPDATE all_users SET way = ? WHERE id=?', (row[3], index))
-        # connection.commit()
-        # db.execute('UPDATE all_users SET count_par = ? WHERE id=?', (row[4], index))
-        # connection.commit()
-        # db.execute('UPDATE all_users SET name_group = ? WHERE id=?', (row[5], index))
-        # connection.commit()
-        # db.execute('UPDATE all_users SET name_teacher = ? WHERE id=?', (row[6], index))
-        # connection.commit()
         db.close()

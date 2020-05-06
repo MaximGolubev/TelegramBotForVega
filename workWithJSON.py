@@ -1,8 +1,5 @@
 import json
 
-# тут все оборачиваем в классы
-# примерно так, но надо будет шлифовать
-
 
 ''' 
 Это интерфейс для классов, которые будут получать данные 
@@ -12,7 +9,6 @@ import json
 
 
 class AbstractProvider:
-    # тут опишите методы, которые вам нужны: search_group и т.д.
     def search_group(self, g):
         pass
 
@@ -43,19 +39,14 @@ class FileProvider(AbstractProvider):
     def search_subject(self, teacher):  # -Работает
         for pattern in self.data['patterns']:
             if 'pr' in pattern and not pattern['pr'] == '' and not pattern['pr'].upper().find(teacher.upper()) == -1:
-                # print("Учитель существует")
-                # print(pattern['search'])
                 return pattern['search']
         return 'ERROR'
-    # тут реализация методов интерфейса
 
 
 ''' Этот класс будет преобразовывать куски JSON в текстовые данные '''
 
 
 class JsonFormatter:
-    # используем иньекцию зависимостей (Dependency Injection):
-    # за поставку данных отвечает другой объект, когда появится API - воткнем сервак
     def __init__(self, provider: FileProvider, filename: str):
         if provider == FileProvider:
             self.provider = FileProvider(filename)
@@ -81,7 +72,6 @@ class JsonFormatter:
         for day in arrayDays:
             text = self.search_by_group_and_date(group, day)
             if not text == 'Занятия отсутсвуют.':
-                # timeTable += arrayDays[indexDay] + '\n'
                 timeTable += text + '\n'
                 indexDay += 1
             else:
@@ -97,12 +87,9 @@ class JsonFormatter:
         arrayPars = [False, False, False, False, False, False, False]
         strTimeTable = ['', '', '', '', '', '', '']
         for gr in self.provider.data['groups']:
-            # print(gr['group'])
             for day in gr['days']:
                 if day['day'] == dayWeek:
-                    # print('\t' + day['day'])
                     for lesson in day['pars']:
-                        # print('\t' + '\t' + lesson['name'])
                         if lesson['name'] == subject:
                             numberLesson = int(lesson['number']) - 1
                             if arrayPars[numberLesson]:
@@ -113,7 +100,6 @@ class JsonFormatter:
                                 strTimeTable[numberLesson] += lesson['name'] + ' - '
                                 strTimeTable[numberLesson] += lesson['place'] + ' - '
                                 strTimeTable[numberLesson] += gr['group']
-                                # print('\t' + '\t' + '\t' + strTimeTable[numberLesson])
 
         timeTable = dayWeek + ':\n'
         for i in range(0, 7):
@@ -123,7 +109,6 @@ class JsonFormatter:
         if timeTable == dayWeek + ':\n':
             return 'Занятия отсутствуют.'
         else:
-            # print(timeTable)
             return timeTable
 
     def search_by_teacher(self, teacher):  # -Работает
@@ -162,7 +147,6 @@ class JsonFormatter:
         lastTwo = ''
         for group in self.provider.data['groups']:
             if lastTwo.find(str(group['group'])[8:]) == -1 and a != 0:
-                # print("zashel = " + str(index) + " - " + str(group['group']))
                 index += 1
             timeTable[index] += group['group'] + '\n\n'
             timeTable[index] += self.search_by_group(group['group']) + '\n'
@@ -180,12 +164,10 @@ class JsonFormatter:
         indexDay = 0
 
         for gr in self.provider.data['groups']:
-            # print(gr['group'])
             for day in gr['days']:
                 for lesson in day['pars']:
                     indexPars = int(lesson['number']) - 1
                     if not lesson['place'].find('Б-209') == -1:
-                        # print(f'{arrayDays[indexDay]} {indexPars + 1}')
                         countPars[indexDay][indexPars] += 1
                 indexDay += 1
             indexDay = 0
@@ -211,43 +193,35 @@ class JsonFormatter:
     def search_teacher(self, teacher):  # -Работает
         teacher.upper()
         arrayTeachersOut = []
-        # print('\t' + teacher + ': ')
         for pattern in self.provider.data['patterns']:
             if 'pr' in pattern and not pattern['pr'] == '' and not pattern['pr'].upper().find(teacher) == -1:
                 arrayTeachersOut.append(pattern['pr'])
-                # print('\t\t' + pattern['pr'])
         return arrayTeachersOut
 
     def search_group_by_one_part(self, strGr):
         group = strGr.upper()
         arrayGroupsOut = []
-        # print('\t' + strGr + ': ')
         for gr in self.provider.data['groups']:
             if gr['group'][0:4] == group:
                 arrayGroupsOut.append(gr['group'])
-                # print('\t\t' + gr['group'])
         return arrayGroupsOut
 
     def search_group_by_two_parts(self, strGr, strOne):
         arrayGroupsIn = self.search_group_by_one_part(strGr)
         l = len(arrayGroupsIn)
         arrayGroupsOut = []
-        # print('\t' + strGr + '-' + strOne + ': ')
         for i in range(0, l):
             if not arrayGroupsIn[i][5:7].find(strOne) == -1:
                 arrayGroupsOut.append(arrayGroupsIn[i])
-                # print('\t\t' + arrayGroupsIn[i])
         return arrayGroupsOut
 
     def search_group_by_three_parts(self, strGr, strOne, strTwo):
         arrayGroupsIn = self.search_group_by_two_parts(strGr, strOne)
         l = len(arrayGroupsIn)
         arrayGroupsOut = []
-        # print('\t' + strGr + '-' + strOne + '-' + strTwo + ': ')
         for i in range(0, l):
             if not arrayGroupsIn[i][8:].find(strTwo) == -1:
                 arrayGroupsOut.append(arrayGroupsIn[i])
-                # print('\t\t' + arrayGroupsIn[i])
         return arrayGroupsOut
 
 # ------------------ВТОРОСТЕПЕННЫЕ ФУНКЦИИ------------------
@@ -284,7 +258,6 @@ def outputFormat(jsonDay):
         if strTimeTable[i] == '':
             dayTimeTable += f'{i + 1} - '
             dayTimeTable += 'пусто\n'
-    # print(dayTimeTable)
     return dayTimeTable
 
 
