@@ -1,0 +1,9 @@
+config.py
+SavedInformation
+__pycache__
+USERS_DATA_BASE.db
+ADMINS_DATA_BASE.db
+data.json
+dataTest.json
+log.txt
+.idea
