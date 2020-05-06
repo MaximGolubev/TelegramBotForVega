@@ -46,13 +46,13 @@ def process_start_command(message: Message):
 @bot.message_handler(commands=['setnew'])
 def time_table_changed(message: Message):
     # loggerDEBUG.debug(f'/setnew {message.from_user.username}')
-    if fnc.isAdmin(message.from_user.id):
+    if False: #fnc.isAdmin(message.from_user.id):
         s = message.text.split(' ')
         option = ''
         if len(s) > 1:
             for i in range(1, len(s)):
                 option += s[i] + ' '
-        fnc.sendNotif(option)
+        #fnc.sendNotif(option)
         loggerDEBUG.debug(f'/setnew {message.from_user.username} - {message.from_user.id} - {option}')
     else:
         loggerDEBUG.warning('\n'.join([f'/setnew ----- ВНИМАНИЕ!!! ',

@@ -56,14 +56,8 @@ class FileProvider(AbstractProvider):
 class JsonFormatter:
     # используем иньекцию зависимостей (Dependency Injection):
     # за поставку данных отвечает другой объект, когда появится API - воткнем сервак
-    def __init__(self, provider: FileProvider, filename: str):
-        if provider == FileProvider:
-            self.provider = FileProvider(filename)
-        elif provider == ServerProvider:
-            self.provider = ServerProvider()
-        else:
-            self.provider = '\0'
-        # ...
+    def __init__(self, provider: AbstractProvider):
+        self.provider = provider
 
     def search_by_group_and_date(self, group, dayWeek):  # -Работает
         groups = self.provider.search_group(group)

@@ -1,7 +1,7 @@
 import workWithJSON as wJSON
-import workWithDataBase as wDB
 import keyboard as kb
 import main
+from main import dataBase
 import strings
 import config
 
@@ -20,9 +20,9 @@ bot = telebot.TeleBot(config.token)
 #countParam = 0
 #arrayGroup = ['']
 #arrayTeacher = ['']
-jsonFormatter = wJSON.JsonFormatter(wJSON.FileProvider, "dataTest.json")
+
 fileProvider = wJSON.FileProvider("dataTest.json")
-dataBase = main.dataBase
+jsonFormatter = wJSON.JsonFormatter(fileProvider)
 
 def general_func(message: Message):
     # Обработка выбора пути с ReplyKeyboardMarkup
@@ -91,35 +91,37 @@ def general_func(message: Message):
 # разбить на отдельные хендлеры: код будет прозрачнее
 def choose_way(message: Message):
     row = dataBase.get_row_by_id(message.from_user.id)
-    list = row_to_list(row)
+    if row == 'ERROR':
+        return 1
+    buf_list = row_to_list(row)
 
     if message.text == strings.SEARCH_BY_GROUP:
         main.loggerDEBUG.debug('поиск по группе')
-        list[3] = 0
-        list[4] = 0
-        list[5] = ''
-        dataBase.edit_row(list[0], list)
+        buf_list[3] = 0
+        buf_list[4] = 0
+        buf_list[5] = ''
+        dataBase.edit_row(buf_list[0], buf_list)
         # bot.send_message(message.chat.id, strings.ENTER_GROUP)
         return strings.ENTER_GROUP
     elif message.text == strings.SEARCH_BY_TEACHER:
         main.loggerDEBUG.debug('поиск по преподавателю')
-        list[3] = 1
-        list[4] = 0
-        list[6] = ''
-        dataBase.edit_row(list[0], list)
+        buf_list[3] = 1
+        buf_list[4] = 0
+        buf_list[6] = ''
+        dataBase.edit_row(buf_list[0], buf_list)
         # bot.send_message(message.chat.id, strings.ENTER_TEACHER)
         return strings.ENTER_TEACHER
     elif message.text == strings.SEARCH_ALL_TIME_TABLE:
         main.loggerDEBUG.debug('вывод всего расписания')
-        list[3] = 2
-        list[4] = 0
-        dataBase.edit_row(list[0], list)
+        buf_list[3] = 2
+        buf_list[4] = 0
+        dataBase.edit_row(buf_list[0], buf_list)
         return ''
     elif message.text == strings.SEARCH_BY_B209:
         main.loggerDEBUG.debug('когда свободна Б209?')
-        list[3] = 3
-        list[4] = 0
-        dataBase.edit_row(list[0], list)
+        buf_list[3] = 3
+        buf_list[4] = 0
+        dataBase.edit_row(buf_list[0], buf_list)
         # bot.send_message(message.chat.id, strings.ENTER_SUBGROUP)
         return strings.ENTER_SUBGROUP
     else:
@@ -216,7 +218,7 @@ def teacher_one_parameter(message: Message):
 def all_time_table_one_parameters(message: Message):
     main.loggerDEBUG.debug('вывод всего расписания (0)')
     row = dataBase.get_row_by_id(message.from_user.id)
-    list = row_to_list(row)
+    buf_list = row_to_list(row)
     # print ("-------------")
     if message.text == 'все':
         # print("-------------")
@@ -224,9 +226,9 @@ def all_time_table_one_parameters(message: Message):
         s = jsonFormatter.print_all_time_table()
         return s
     elif message.text == 'выйти':
-        list[4] = 0
-        list[3] = -1
-        dataBase.edit_row(list[0], list)
+        buf_list[4] = 0
+        buf_list[3] = -1
+        dataBase.edit_row(buf_list[0], buf_list)
     else:
         year = f'{(int(message.text[2:4]) % 100)}'
         strGroup = ''
@@ -282,42 +284,46 @@ def data_to_array(strData):
 
 
 def sendNotif(s):
-    connection = dataBase.get_user_connection()
-    db = connection.cursor()
-    db.execute("SELECT * FROM all_users")
-    timing = time.time()
-    while True:
-        if time.time() - timing > 0.05:
-            timing = time.time()
-            row = db.fetchone()
-            if row == None:
-                break
-
-            chat_id = row[2]
-            try:
-                db.close()
-                bot.send_message(chat_id, strings.MESSAGE_SEND_NOTIFICATION_first + s + strings.MESSAGE_SEND_NOTIFICATION_second)
-            except:
-                db.close()
-                main.loggerDEBUG.warning(f'----- в chat_id: {chat_id} уведомление отправлено не было')
-
+    pass
+    # connection = dataBase.get_user_connection()
+    # db = connection.cursor()
+    # db.execute("SELECT * FROM all_users")
+    # timing = time.time()
+    # while True:
+    #     if time.time() - timing > 0.05:
+    #         timing = time.time()
+    #         row = db.fetchone()
+    #         if row == None:
+    #             break
+    #
+    #         chat_id = row[2]
+    #         try:
+    #             db.close()
+    #             bot.send_message(chat_id, strings.MESSAGE_SEND_NOTIFICATION_first + s + strings.MESSAGE_SEND_NOTIFICATION_second)
+    #         except:
+    #             db.close()
+    #             main.loggerDEBUG.warning(f'----- в chat_id: {chat_id} уведомление отправлено не было')
+    #
 
 def isAdmin(id):
-    connection = dataBase.get_admin_connection()
-    db = connection.cursor()
-    db.execute("SELECT * FROM admins")
-    while True:
-        row = db.fetchone()
-        if row == None:
-            break
+    pass
+    # connection = dataBase.get_admin_connection()
+    # db = connection.cursor()
+    # db.execute("SELECT * FROM admins")
+    # while True:
+    #     row = db.fetchone()
+    #     if row == None:
+    #         break
+    #
+    #     user_id = row[1]
+    #     if int(user_id) == int(id):
+    #         db.close()
+    #         return True
+    # db.close()
+    # return False
 
-        user_id = row[1]
-        if int(user_id) == int(id):
-            db.close()
-            return True
-    db.close()
-    return False
 
 def row_to_list(row):
-    list = [row[0], row[1], row[2], row[3], row[4], row[5], row[6]]
-    return list
+    print(row)
+    buf_list = [row[0], row[1], row[2], row[3], row[4], row[5], row[6]]
+    return buf_list

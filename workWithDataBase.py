@@ -30,6 +30,7 @@ class FileDBWork(AbstractDBWork):
         c = users_connection.cursor()
         if force:
             c.execute('DROP TABLE IF EXISTS all_users')
+            users_connection.commit()
         c.execute("""CREATE TABLE IF NOT EXISTS all_users
                         (id         INTEGER PRIMARY KEY, 
                             user_id     INTEGER NOT NULL UNIQUE,
@@ -46,6 +47,7 @@ class FileDBWork(AbstractDBWork):
         c = admins_connection.cursor()
         if force:
             c.execute('DROP TABLE IF EXISTS admins')
+            admins_connection.commit()
         c.execute("""CREATE TABLE IF NOT EXISTS admins
                             (id         INTEGER PRIMARY KEY, 
                             user_id     INTEGER NOT NULL UNIQUE,
@@ -64,12 +66,14 @@ class FileDBWork(AbstractDBWork):
         # main.loggerDEBUG.debug('создать пользователя')
         connection = self.CONNECTION_USERS_DB
         c = connection.cursor()
+
         try:
             c.execute('INSERT INTO all_users (user_id, chat_id) VALUES (?, ?)', (user_id, chat_id,))
             connection.commit()
             c.close()
             # main.loggerDEBUG.debug(f'----- DATA-BASE новый chat_id: "{user_id}"')
         except:
+            connection.commit()
             c.close()
             # main.loggerDEBUG.debug(f'----- DATA-BASE chat_id: "{user_id}" уже сущетсвует')
 
@@ -77,14 +81,15 @@ class FileDBWork(AbstractDBWork):
         connection = self.CONNECTION_USERS_DB
         db = connection.cursor()
         db.execute("SELECT * FROM all_users")
-        while True:
-            row = db.fetchone()
-            if row == None:
+        for row in db.fetchall():
+            if row is None:
                 break
             u_id = row[1]
             if user_id == u_id:
+                connection.commit()
                 db.close()
                 return row
+        connection.commit()
         db.close()
         return 'ERROR'
 
