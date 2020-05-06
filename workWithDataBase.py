@@ -1,60 +1,109 @@
 import sqlite3
 
-CONNECTION_USERS_DB = None
-CONNECTION_ADMINS_DB = None
-
 
 ''' Тут нужно обернуть все в класс BDWorker '''
 
 
-def get_connection_to_users_data_base():
-    global CONNECTION_USERS_DB
-    if CONNECTION_USERS_DB is None:
-        CONNECTION_USERS_DB = sqlite3.connect('USERS_DATA_BASE.db', check_same_thread=False)
-    return CONNECTION_USERS_DB
+class AbstractDBWork:
+
+    def add_user(self, user_id: int, chat_id: int):
+        pass
+
+    def get_row_by_id(self, user_id):
+        pass
+
+    def edit_row(self, id, row):
+        pass
 
 
-def get_connection_to_admin_data_base():
-    global CONNECTION_ADMINS_DB
-    if CONNECTION_ADMINS_DB is None:
-        CONNECTION_ADMINS_DB = sqlite3.connect('ADMINS_DATA_BASE.db', check_same_thread=False)
-    return CONNECTION_ADMINS_DB
+class FileDBWork(AbstractDBWork):
+    CONNECTION_USERS_DB = None
+    CONNECTION_ADMINS_DB = None
 
+    def __init__(self, usersDataBaseName: str, adminsDataBaseName: str, force: bool = False):
+        if self.CONNECTION_USERS_DB is None:
+            self.CONNECTION_USERS_DB = sqlite3.connect(usersDataBaseName, check_same_thread=False)
+        if self.CONNECTION_ADMINS_DB is None:
+            self.CONNECTION_ADMINS_DB = sqlite3.connect(adminsDataBaseName, check_same_thread=False)
 
-def init_data_base(force: bool = False):
-    users_connection = get_connection_to_users_data_base()
-    c = users_connection.cursor()
-    if force:
-        c.execute('DROP TABLE IF EXISTS all_users_chat_id')
-    c.execute("""CREATE TABLE IF NOT EXISTS all_users_chat_id
-            (id         INTEGER PRIMARY KEY, 
-            chat_id     INTEGER NOT NULL UNIQUE)
-            """)
-    users_connection.commit()
+        users_connection = self.CONNECTION_USERS_DB
+        c = users_connection.cursor()
+        if force:
+            c.execute('DROP TABLE IF EXISTS all_users')
+        c.execute("""CREATE TABLE IF NOT EXISTS all_users
+                        (id         INTEGER PRIMARY KEY, 
+                            user_id     INTEGER NOT NULL UNIQUE,
+                            chat_id     INTEGER NOT NULL UNIQUE,
+                            way         INTEGER DEFAULT -1,
+                            count_par   INTEGER DEFAULT 0,
+                            name_group  TEXT NOT NULL DEFAULT '',
+                            name_teacher  TEXT NOT NULL DEFAULT '')
+                        """)
+        users_connection.commit()
+        c.close()
 
-    admins_connection = get_connection_to_admin_data_base()
-    c = admins_connection.cursor()
-    if force:
-        c.execute('DROP TABLE IF EXISTS admins_chat_id')
-    c.execute("""CREATE TABLE IF NOT EXISTS admins_chat_id
-                (id         INTEGER PRIMARY KEY, 
-                chat_id     INTEGER NOT NULL UNIQUE)
-                """)
-    admins_connection.commit()
+        admins_connection = self.CONNECTION_ADMINS_DB
+        c = admins_connection.cursor()
+        if force:
+            c.execute('DROP TABLE IF EXISTS admins')
+        c.execute("""CREATE TABLE IF NOT EXISTS admins
+                            (id         INTEGER PRIMARY KEY, 
+                            user_id     INTEGER NOT NULL UNIQUE,
+                            chat_id     INTEGER NOT NULL UNIQUE)
+                            """)
+        admins_connection.commit()
+        c.close()
 
+    def get_user_connection(self):
+        return self.CONNECTION_USERS_DB
 
-def add_user(chat_id: int):
-    connection = get_connection_to_users_data_base()
-    c = connection.cursor()
-    try:
-        c.execute('INSERT INTO all_users_chat_id (chat_id) VALUES (?)', (chat_id,))
+    def get_admin_connection(self):
+        return self.CONNECTION_ADMINS_DB
+
+    def add_user(self, user_id: int, chat_id: int):
+        # main.loggerDEBUG.debug('создать пользователя')
+        connection = self.CONNECTION_USERS_DB
+        c = connection.cursor()
+        try:
+            c.execute('INSERT INTO all_users (user_id, chat_id) VALUES (?, ?)', (user_id, chat_id,))
+            connection.commit()
+            c.close()
+            # main.loggerDEBUG.debug(f'----- DATA-BASE новый chat_id: "{user_id}"')
+        except:
+            c.close()
+            # main.loggerDEBUG.debug(f'----- DATA-BASE chat_id: "{user_id}" уже сущетсвует')
+
+    def get_row_by_id(self, user_id):
+        connection = self.CONNECTION_USERS_DB
+        db = connection.cursor()
+        db.execute("SELECT * FROM all_users")
+        while True:
+            row = db.fetchone()
+            if row == None:
+                break
+            u_id = row[1]
+            if user_id == u_id:
+                db.close()
+                return row
+        db.close()
+        return 'ERROR'
+
+    def edit_row(self, index, row):
+        connection = self.CONNECTION_USERS_DB
+        db = connection.cursor()
+        db.execute('UPDATE all_users SET way = ?, '
+                   'count_par = ?, '
+                   'name_group = ?, '
+                   'name_teacher = ?  '
+                   'WHERE id=?', (row[3], row[4], row[5], row[6], index))
         connection.commit()
-        print("----- DATA-BASE новый chat_id: '" + str(chat_id) + "'")
-    except:
-        print("----- DATA-BASE chat_id: '" + str(chat_id) + "' уже сущетсвует")
 
-
-def user_from_data_base(dataBase, index):
-    user = -1
-    [user], = dataBase.execute('select name from all_users_chat_id where id=?', (index,))
-    return user
+        # db.execute('UPDATE all_users SET way = ? WHERE id=?', (row[3], index))
+        # connection.commit()
+        # db.execute('UPDATE all_users SET count_par = ? WHERE id=?', (row[4], index))
+        # connection.commit()
+        # db.execute('UPDATE all_users SET name_group = ? WHERE id=?', (row[5], index))
+        # connection.commit()
+        # db.execute('UPDATE all_users SET name_teacher = ? WHERE id=?', (row[6], index))
+        # connection.commit()
+        db.close()

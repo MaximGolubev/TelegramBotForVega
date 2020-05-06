@@ -1,11 +1,11 @@
-import time
-
 import workWithJSON as wJSON
 import workWithDataBase as wDB
 import keyboard as kb
+import main
 import strings
 import config
 
+import time
 import datetime
 import telebot
 from telebot.types import Message
@@ -16,51 +16,51 @@ bot = telebot.TeleBot(config.token)
 # если да, эта штука не будет работать при одновременной работе нескольких юзеров
 # (будут воровать друг у друга состояние)
 # Надо сохранять состояние в словаре или БД (vedis, redis)
-whichWayIs = -1
-howManyParameters = [0, 0, 0, 0]
-arrayGroup = ['']
-arraySmallGroup = []
-arrayTeacher = ['']
-arrayAllTimeTable = ['']
-
+#way = -1
+#countParam = 0
+#arrayGroup = ['']
+#arrayTeacher = ['']
+jsonFormatter = wJSON.JsonFormatter(wJSON.FileProvider, "dataTest.json")
+fileProvider = wJSON.FileProvider("dataTest.json")
+dataBase = main.dataBase
 
 def general_func(message: Message):
     # Обработка выбора пути с ReplyKeyboardMarkup
-    global whichWayIs
-    str = choose_way(message) # str это тип, переименовать
-    if not str == '':
-        bot.send_message(message.chat.id, str)
-
+    s = choose_way(message)
+    if not s == '':
+        bot.send_message(message.chat.id, s)
+    row = dataBase.get_row_by_id(message.from_user.id)
+    list = row_to_list(row)
+    way = row[3]
+    countParam = row[4]
     # Работа с выводом информации--------------
-    if whichWayIs == 0:
-        print('+ in bot: ' + 'Поиск по группе')
-        if howManyParameters[whichWayIs] == 0:
+    if way == 0:
+        if countParam == 0:
             stringOut = group_zero_parameters(message)
             if not stringOut == '':
                 bot.send_message(message.chat.id, stringOut)
-        elif howManyParameters[whichWayIs] == 1:
+        elif countParam == 1:
             stringOut = group_one_parameter(message)
             bot.send_message(message.chat.id, stringOut)
 
 
-    elif whichWayIs == 1:
-        print('+ in bot: ' + 'Поиск по преподавателю')
-        if howManyParameters[whichWayIs] == 0:
+    elif way == 1:
+        if countParam == 0:
             stringOut = teacher_zero_parameters(message)
             if not stringOut == '':
                 bot.send_message(message.chat.id, stringOut)
-        elif howManyParameters[whichWayIs] == 1:
+        elif countParam == 1:
             stringOut = teacher_one_parameter(message)
             bot.send_message(message.chat.id, stringOut)
 
 
-    elif whichWayIs == 2:
-        print('+ in bot: ' + 'Вывод всего расписания')
-        if howManyParameters[whichWayIs] == 0:
+    elif way == 2:
+        if countParam == 0:
+            list[4] += 1
             bot.send_message(message.chat.id, strings.ENTER_COURSE_YEAR,
                              reply_markup=kb.choiceCourse)
-            howManyParameters[whichWayIs] += 1
-        elif howManyParameters[whichWayIs] == 1:
+            dataBase.edit_row(list[0], list)
+        elif countParam == 1:
             catch = catching_stupid_in_third(message.text)
             if not catch:
                 strOut = all_time_table_one_parameters(message)
@@ -79,35 +79,47 @@ def general_func(message: Message):
                     else:
                         bot.send_message(message.chat.id, strOut)
             else:
+                main.loggerDEBUG.debug('вывод всего расписания (null)')
                 bot.send_message(message.chat.id, strings.MESSAGE_ERROR_ALL_TIME_TABLE)
 
-    elif whichWayIs == 3:
-        print('+ in bot: ' + 'Когда свободна Б-209?')
-        bot.send_message(message.chat.id, wJSON.when_b209_is_free())
-        whichWayIs = -1
+    elif way == 3:
+        main.loggerDEBUG.debug('когда свободна Б-209? (0)')
+        bot.send_message(message.chat.id, jsonFormatter.when_b209_is_free())
+        list[3] = -1
+        dataBase.edit_row(list[0], list)
 
 # разбить на отдельные хендлеры: код будет прозрачнее
 def choose_way(message: Message):
-    global whichWayIs
+    row = dataBase.get_row_by_id(message.from_user.id)
+    list = row_to_list(row)
+
     if message.text == strings.SEARCH_BY_GROUP:
-        whichWayIs = 0
-        howManyParameters[whichWayIs] = 0
-        arrayGroup[0] = ''
+        main.loggerDEBUG.debug('поиск по группе')
+        list[3] = 0
+        list[4] = 0
+        list[5] = ''
+        dataBase.edit_row(list[0], list)
         # bot.send_message(message.chat.id, strings.ENTER_GROUP)
         return strings.ENTER_GROUP
     elif message.text == strings.SEARCH_BY_TEACHER:
-        whichWayIs = 1
-        howManyParameters[whichWayIs] = 0
-        arrayTeacher[0] = ''
+        main.loggerDEBUG.debug('поиск по преподавателю')
+        list[3] = 1
+        list[4] = 0
+        list[6] = ''
+        dataBase.edit_row(list[0], list)
         # bot.send_message(message.chat.id, strings.ENTER_TEACHER)
         return strings.ENTER_TEACHER
     elif message.text == strings.SEARCH_ALL_TIME_TABLE:
-        whichWayIs = 2
-        howManyParameters[whichWayIs] = 0
-        arrayAllTimeTable[0] = ''
+        main.loggerDEBUG.debug('вывод всего расписания')
+        list[3] = 2
+        list[4] = 0
+        dataBase.edit_row(list[0], list)
         return ''
     elif message.text == strings.SEARCH_BY_B209:
-        whichWayIs = 3
+        main.loggerDEBUG.debug('когда свободна Б209?')
+        list[3] = 3
+        list[4] = 0
+        dataBase.edit_row(list[0], list)
         # bot.send_message(message.chat.id, strings.ENTER_SUBGROUP)
         return strings.ENTER_SUBGROUP
     else:
@@ -115,10 +127,15 @@ def choose_way(message: Message):
 
 
 def group_zero_parameters(message: Message):
-    gr = wJSON.search_group(message.text)
+    main.loggerDEBUG.debug('поиск по группе (0)')
+    row = dataBase.get_row_by_id(message.from_user.id)
+    list = row_to_list(row)
+
+    gr = fileProvider.search_group(message.text)
     if not gr == 'ERROR':
-        arrayGroup[0] = message.text.upper()
-        howManyParameters[whichWayIs] += 1
+        list[5] = message.text.upper()
+        list[4] += 1
+        dataBase.edit_row(list[0], list)
         # bot.send_message(message.chat.id, strings.ENTER_DATE)
         return strings.ENTER_DATE
     elif not message.text == strings.SEARCH_BY_GROUP:
@@ -129,13 +146,16 @@ def group_zero_parameters(message: Message):
 
 # разбить на отдельные хендлеры: код будет прозрачнее
 def group_one_parameter(message: Message):
+    main.loggerDEBUG.debug('поиск по группе (1)')
+    row = dataBase.get_row_by_id(message.from_user.id)
+    list = row_to_list(row)
     if message.text == '1':
         date = datetime.datetime.today()
-        group = wJSON.search_by_group_and_date(arrayGroup[0], wJSON.week_to_string(date.weekday()))
+        group = jsonFormatter.search_by_group_and_date(list[5], wJSON.week_to_string(date.weekday()))
         # bot.send_message(message.chat.id, group)
         return group
     elif message.text == '7':
-        group = wJSON.search_by_group(arrayGroup[0])
+        group = jsonFormatter.search_by_group(list[5])
         # bot.send_message(message.chat.id, group)
         return group
     else:
@@ -143,7 +163,7 @@ def group_one_parameter(message: Message):
             # arrayData = message.text.split('.')
             arrayData = data_to_array(message.text)
             date = datetime.datetime(int(arrayData[2]), int(arrayData[1]), int(arrayData[0]))
-            group = wJSON.search_by_group_and_date(arrayGroup[0], wJSON.week_to_string(date.weekday()))
+            group = jsonFormatter.search_by_group_and_date(list[5], wJSON.week_to_string(date.weekday()))
             return group
         except:
             return 'Некорректный ввод даты.\n' \
@@ -151,10 +171,14 @@ def group_one_parameter(message: Message):
 
 
 def teacher_zero_parameters(message: Message):
-    tch = wJSON.search_subject(message.text)
+    main.loggerDEBUG.debug('поиск по преподавателю (0)')
+    row = dataBase.get_row_by_id(message.from_user.id)
+    list = row_to_list(row)
+    tch = fileProvider.search_subject(message.text)
     if not tch == 'ERROR':
-        arrayTeacher[0] = message.text.upper()
-        howManyParameters[whichWayIs] += 1
+        list[6] = message.text.upper()
+        list[4] += 1
+        dataBase.edit_row(list[0], list)
         # bot.send_message(message.chat.id, strings.ENTER_DATE)
         return strings.ENTER_DATE
     elif not message.text == strings.SEARCH_BY_TEACHER:
@@ -165,20 +189,23 @@ def teacher_zero_parameters(message: Message):
 
 
 def teacher_one_parameter(message: Message):
+    main.loggerDEBUG.debug('поиск по преподавателю (1)')
+    row = dataBase.get_row_by_id(message.from_user.id)
+    list = row_to_list(row)
     if message.text == '1':
         date = datetime.datetime.today()
-        teacher = wJSON.search_by_teacher_and_date(arrayTeacher[0], wJSON.week_to_string(date.weekday()))
+        teacher = jsonFormatter.search_by_teacher_and_date(list[6], wJSON.week_to_string(date.weekday()))
         # bot.send_message(message.chat.id, teacher)
         return teacher
     elif message.text == '7':
-        teacher = wJSON.search_by_teacher(arrayTeacher[0])
+        teacher = jsonFormatter.search_by_teacher(list[6])
         # bot.send_message(message.chat.id, teacher)
         return teacher
     else:
         try:
             arrayData = data_to_array(message.text)
             date = datetime.datetime(int(arrayData[2]), int(arrayData[1]), int(arrayData[0]))
-            teacher = wJSON.search_by_teacher_and_date(arrayTeacher[0], wJSON.week_to_string(date.weekday()))
+            teacher = jsonFormatter.search_by_teacher_and_date(list[6], wJSON.week_to_string(date.weekday()))
             # bot.send_message(message.chat.id, teacher)
             return teacher
         except:
@@ -187,18 +214,21 @@ def teacher_one_parameter(message: Message):
 
 
 def all_time_table_one_parameters(message: Message):
-    global whichWayIs
+    main.loggerDEBUG.debug('вывод всего расписания (0)')
+    row = dataBase.get_row_by_id(message.from_user.id)
+    list = row_to_list(row)
     # print ("-------------")
     if message.text == 'все':
         # print("-------------")
         # bot.send_message(message.chat.id, wJSON.print_all_time_table())
-        s = wJSON.print_all_time_table()
+        s = jsonFormatter.print_all_time_table()
         return s
     elif message.text == 'выйти':
-        howManyParameters[whichWayIs] = 0
-        whichWayIs = -1
+        list[4] = 0
+        list[3] = -1
+        dataBase.edit_row(list[0], list)
     else:
-        year = str(int(message.text[2:4]) % 100)
+        year = f'{(int(message.text[2:4]) % 100)}'
         strGroup = ''
         if message.text[4:] == ' (магистратура)':
             strGroup += 'КММО'
@@ -207,7 +237,7 @@ def all_time_table_one_parameters(message: Message):
         else:
             return 'ERROR'
         # bot.send_message(message.chat.id, wJSON.print_all_time_table_with_course(year))
-        return wJSON.print_all_time_table_with_course(strGroup, year)
+        return jsonFormatter.print_all_time_table_with_course(strGroup, year)
 
 
 def catching_stupid_in_third(text):
@@ -252,9 +282,9 @@ def data_to_array(strData):
 
 
 def sendNotif(s):
-    connection = wDB.get_connection_to_users_data_base()
+    connection = dataBase.get_user_connection()
     db = connection.cursor()
-    db.execute("SELECT * FROM all_users_chat_id")
+    db.execute("SELECT * FROM all_users")
     timing = time.time()
     while True:
         if time.time() - timing > 0.05:
@@ -263,23 +293,31 @@ def sendNotif(s):
             if row == None:
                 break
 
-            chat_id = row[1]
+            chat_id = row[2]
             try:
+                db.close()
                 bot.send_message(chat_id, strings.MESSAGE_SEND_NOTIFICATION_first + s + strings.MESSAGE_SEND_NOTIFICATION_second)
             except:
-                print("----- в chat_id:" + str(chat_id) + " уведомление отправлено не было")
+                db.close()
+                main.loggerDEBUG.warning(f'----- в chat_id: {chat_id} уведомление отправлено не было')
 
 
 def isAdmin(id):
-    connection = wDB.get_connection_to_admin_data_base()
+    connection = dataBase.get_admin_connection()
     db = connection.cursor()
-    db.execute("SELECT * FROM admins_chat_id")
+    db.execute("SELECT * FROM admins")
     while True:
         row = db.fetchone()
         if row == None:
             break
 
-        chat_id = row[1]
-        if int(chat_id) == int(id):
+        user_id = row[1]
+        if int(user_id) == int(id):
+            db.close()
             return True
+    db.close()
     return False
+
+def row_to_list(row):
+    list = [row[0], row[1], row[2], row[3], row[4], row[5], row[6]]
+    return list

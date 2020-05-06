@@ -1,10 +1,13 @@
 import workWithJSON as wJSON
-import functions as f
+import functions as fnc
+import main
 
 import re
 import datetime
 from telebot import types
 
+jsonFormatter = wJSON.JsonFormatter(wJSON.FileProvider, "dataTest.json")
+fileProvider = wJSON.FileProvider("dataTest.json")
 
 def general_func(query):
     textIn = query.query
@@ -37,21 +40,21 @@ def len_one(arrayCommands):
     if len(arrayCommands[0]) == 4:
         arrayGroupsOut = []
         if 'КММО' == arrayCommands[0][0:4] or 'КМБО' == arrayCommands[0][0:4]:
-            print('query: ' + '1 - по группе')
-            arrayGroupsIn = wJSON.search_group_by_one_part(arrayCommands[0])
+            main.loggerDEBUG.debug('QUERY: ' + '1 (по группе)')
+            arrayGroupsIn = jsonFormatter.search_group_by_one_part(arrayCommands[0])
             arrayGroupsOut = func_for(arrayGroupsIn)
         return arrayGroupsOut
     else:
-        arrayTeachersIn = wJSON.search_teacher(arrayCommands[0])
+        arrayTeachersIn = jsonFormatter.search_teacher(arrayCommands[0])
         l = len(arrayTeachersIn)
         arrayTeachersOut = []
         if l > 0:
-            print('query: ' + '1 - по преподавателю')
+            main.loggerDEBUG.debug('QUERY: ' + '1 (по преподавателю)')
             for i in range(0, l):
                 date = datetime.datetime.today()
-                strOut = wJSON.search_by_teacher_and_date(arrayTeachersIn[i], wJSON.week_to_string(date.weekday()))
+                strOut = jsonFormatter.search_by_teacher_and_date(arrayTeachersIn[i], wJSON.week_to_string(date.weekday()))
                 out = types.InlineQueryResultArticle(
-                    id=str(i + 1), title=arrayTeachersIn[i],
+                    id=f'{(i+1)}', title=arrayTeachersIn[i],
                     description='Расписание на текущий день.',
                     input_message_content=types.InputTextMessageContent(message_text=strOut))
                 arrayTeachersOut.append(out)
@@ -62,26 +65,26 @@ def len_two(arrayCommands):
     if len(arrayCommands[0]) == 4:
         arrayGroupsOut = []
         if 'КММО' == arrayCommands[0][0:4] or 'КМБО' == arrayCommands[0][0:4]:
-            print('query: ' + '2 - по группе')
-            arrayGroupsIn = wJSON.search_group_by_two_parts(arrayCommands[0], arrayCommands[1])
+            main.loggerDEBUG.debug('QUERY: ' + '2 (по группе)')
+            arrayGroupsIn = jsonFormatter.search_group_by_two_parts(arrayCommands[0], arrayCommands[1])
             arrayGroupsOut = func_for(arrayGroupsIn)
         return arrayGroupsOut
 
     else:
-        arrayTeachersIn = wJSON.search_teacher(arrayCommands[0])
+        arrayTeachersIn = jsonFormatter.search_teacher(arrayCommands[0])
         l = len(arrayTeachersIn)
         arrayTeachersOut = []
         if l > 0:
-            print('query: ' + '2 - по преподавателю')
+            main.loggerDEBUG.debug('QUERY: ' + '2 (по преподавателю)')
             try:
-                arrayData = f.data_to_array(arrayCommands[1])
+                arrayData = fnc.data_to_array(arrayCommands[1])
                 date = datetime.datetime(int(arrayData[2]), int(arrayData[1]), int(arrayData[0]))
             except:
                 return arrayTeachersOut
             for i in range(0, l):
-                strOut = wJSON.search_by_teacher_and_date(arrayTeachersIn[i], wJSON.week_to_string(date.weekday()))
+                strOut = jsonFormatter.search_by_teacher_and_date(arrayTeachersIn[i], wJSON.week_to_string(date.weekday()))
                 out = types.InlineQueryResultArticle(
-                    id=str(i + 1), title=arrayTeachersIn[i],
+                    id=f'{(i+1)}', title=arrayTeachersIn[i],
                     description='Расписание на: '
                                 + arrayData[0] + '.'
                                 + arrayData[1] + '.'
@@ -96,8 +99,8 @@ def len_three(arrayCommands):
     if len(arrayCommands[0]) == 4:
         arrayGroupsOut = []
         if 'КММО' == arrayCommands[0][0:4] or 'КМБО' == arrayCommands[0][0:4]:
-            print('query: ' + '3 - по группе')
-            arrayGroupsIn = wJSON.search_group_by_three_parts(arrayCommands[0], arrayCommands[1], arrayCommands[2])
+            main.loggerDEBUG.debug('QUERY: ' + '3 (по группе)')
+            arrayGroupsIn = jsonFormatter.search_group_by_three_parts(arrayCommands[0], arrayCommands[1], arrayCommands[2])
             arrayGroupsOut = func_for(arrayGroupsIn)
         return arrayGroupsOut
 
@@ -105,17 +108,17 @@ def len_four(arrayCommands):
     if len(arrayCommands[0]) == 4:
         arrayGroupsOut = []
         if 'КММО' == arrayCommands[0][0:4] or 'КМБО' == arrayCommands[0][0:4]:
-            print('query: ' + '4 - по группе')
-            arrayGroupsIn = wJSON.search_group_by_three_parts(arrayCommands[0], arrayCommands[1], arrayCommands[2])
+            main.loggerDEBUG.debug('QUERY: ' + '4 (по группе)')
+            arrayGroupsIn = jsonFormatter.search_group_by_three_parts(arrayCommands[0], arrayCommands[1], arrayCommands[2])
             for i in range(0, len(arrayGroupsIn)):
                 try:
-                    arrayData = f.data_to_array(arrayCommands[3])
+                    arrayData = fnc.data_to_array(arrayCommands[3])
                     date = datetime.datetime(int(arrayData[2]), int(arrayData[1]), int(arrayData[0]))
                 except:
                     return arrayGroupsOut
-                strOut = wJSON.search_by_group_and_date(arrayGroupsIn[i], wJSON.week_to_string(date.weekday()))
+                strOut = jsonFormatter.search_by_group_and_date(arrayGroupsIn[i], wJSON.week_to_string(date.weekday()))
                 out = types.InlineQueryResultArticle(
-                    id=str(i+1), title=arrayGroupsIn[i],
+                    id=f'{(i+1)}', title=arrayGroupsIn[i],
                     description='Расписание на: '
                                 + arrayData[0] + '.'
                                 + arrayData[1] + '.'
@@ -130,9 +133,9 @@ def func_for(arrayGroupsIn):
     arrayGroupsOut = []
     for i in range(0, len(arrayGroupsIn)):
         date = datetime.datetime.today()
-        strOut = wJSON.search_by_group_and_date(arrayGroupsIn[i], wJSON.week_to_string(date.weekday()))
+        strOut = jsonFormatter.search_by_group_and_date(arrayGroupsIn[i], wJSON.week_to_string(date.weekday()))
         out = types.InlineQueryResultArticle(
-            id=str(i + 1), title=arrayGroupsIn[i],
+            id=f'{(i+1)}', title=arrayGroupsIn[i],
             description='Расписание на текущий день.',
             input_message_content=types.InputTextMessageContent(message_text=strOut))
         arrayGroupsOut.append(out)

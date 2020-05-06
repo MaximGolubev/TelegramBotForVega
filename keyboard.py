@@ -22,12 +22,12 @@ choiceCourse = telebot.types.ReplyKeyboardMarkup(1)
 number = determine_the_year()
 
 # use format-strings
-STRBUTTONSTHIRD_1 = "20" + str(number) + " (бакалавриат)"
-STRBUTTONSTHIRD_2 = "20" + str(number - 1) + " (бакалавриат)"
-STRBUTTONSTHIRD_3 = "20" + str(number - 2) + " (бакалавриат)"
-STRBUTTONSTHIRD_4 = "20" + str(number - 3) + " (бакалавриат)"
-STRBUTTONSTHIRD_5 = "20" + str(number) + " (магистратура)"
-STRBUTTONSTHIRD_6 = "20" + str(number - 1) + " (магистратура)"
+STRBUTTONSTHIRD_1 = f'20{number} (бакалавриат)'
+STRBUTTONSTHIRD_2 = f'20{(number - 1)} (бакалавриат)'
+STRBUTTONSTHIRD_3 = f'20{(number - 2)} (бакалавриат)'
+STRBUTTONSTHIRD_4 = f'20{(number - 3)} (бакалавриат)'
+STRBUTTONSTHIRD_5 = f'20{number} (магистратура)'
+STRBUTTONSTHIRD_6 = f'20{(number - 1)} (магистратура)'
 STRBUTTONSTHIRD_7 = "все"
 STRBUTTONSTHIRD_8 = "выйти"
 
