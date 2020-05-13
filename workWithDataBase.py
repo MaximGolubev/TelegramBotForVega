@@ -11,7 +11,7 @@ class AbstractDBWork:
     def get_row_by_id(self, user_id):
         pass
 
-    def edit_row(self, id, row):
+    def edit_row(self, index, row):
         pass
 
 
@@ -39,7 +39,7 @@ class FileDBWork(AbstractDBWork):
                             name_teacher  TEXT NOT NULL DEFAULT '')
                         """)
         users_connection.commit()
-        c.close()
+        #c.close()
 
         admins_connection = self.CONNECTION_ADMINS_DB
         c = admins_connection.cursor()
@@ -51,7 +51,7 @@ class FileDBWork(AbstractDBWork):
                             chat_id     INTEGER NOT NULL UNIQUE)
                             """)
         admins_connection.commit()
-        c.close()
+        #c.close()
 
     def get_user_connection(self):
         return self.CONNECTION_USERS_DB
@@ -65,10 +65,10 @@ class FileDBWork(AbstractDBWork):
         try:
             c.execute('INSERT INTO all_users (user_id, chat_id) VALUES (?, ?)', (user_id, chat_id,))
             connection.commit()
-            c.close()
+            #c.close()
         except:
             connection.commit()
-            c.close()
+            #c.close()
 
     def get_row_by_id(self, user_id):
         connection = self.CONNECTION_USERS_DB
@@ -80,11 +80,11 @@ class FileDBWork(AbstractDBWork):
                 break
             u_id = row[1]
             if user_id == u_id:
-                db.close()
+                #db.close()
                 connection.commit()
                 return row
         connection.commit()
-        db.close()
+        #db.close()
         return 'ERROR'
 
     def edit_row(self, index, row):
@@ -94,4 +94,4 @@ class FileDBWork(AbstractDBWork):
                       SET way = ?, count_par = ?, name_group = ?, name_teacher = ?
                       WHERE id=?""", (row[3], row[4], row[5], row[6], index))
         connection.commit()
-        db.close()
+        #db.close()

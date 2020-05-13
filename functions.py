@@ -1,5 +1,4 @@
 import workWithJSON as wJSON
-import workWithDataBase as wDB
 import keyboard as kb
 import main
 from main import dataBase
@@ -14,13 +13,14 @@ from telebot.types import Message
 bot = telebot.TeleBot(config.token)
 jsonFormatter = wJSON.JsonFormatter(wJSON.FileProvider("dataTest.json"))
 
+
 def general_func(message: Message):
     # Обработка выбора пути с ReplyKeyboardMarkup
     s = choose_way(message)
     if not s == '':
         bot.send_message(message.chat.id, s)
     row = dataBase.get_row_by_id(message.from_user.id)
-    list = row_to_list(row)
+    listRow = row_to_list(row)
     way = row[3]
     countParam = row[4]
 
@@ -45,10 +45,10 @@ def general_func(message: Message):
 
     elif way == 2:
         if countParam == 0:
-            list[4] += 1
+            listRow[4] += 1
             bot.send_message(message.chat.id, strings.ENTER_COURSE_YEAR,
                              reply_markup=kb.choiceCourse)
-            dataBase.edit_row(list[0], list)
+            dataBase.edit_row(listRow[0], listRow)
         elif countParam == 1:
             catch = catching_stupid_in_third(message.text)
             if not catch:
@@ -58,13 +58,10 @@ def general_func(message: Message):
                                      message.from_user.username + ' выберите:',
                                      reply_markup=kb.choiceMarkup)
                 else:
-                    l = len(strOut)
-                    # print(l)
-                    if l == 6:
-                        for i in range(0, l):
-                            # print(strOut[i] + "=========================================================================")
-                            if not strOut[i] == '':
-                                bot.send_message(message.chat.id, strOut[i])
+                    ln = len(strOut)
+                    if ln == 6:
+                        for i, sOut in enumerate(strOut):
+                            bot.send_message(message.chat.id, sOut) if not sOut == '' else print()
                     else:
                         bot.send_message(message.chat.id, strOut)
             else:
@@ -74,8 +71,9 @@ def general_func(message: Message):
     elif way == 3:
         main.loggerDEBUG.debug('когда свободна Б-209? (0)')
         bot.send_message(message.chat.id, jsonFormatter.when_b209_is_free())
-        list[3] = -1
-        dataBase.edit_row(list[0], list)
+        listRow[3] = -1
+        dataBase.edit_row(listRow[0], listRow)
+
 
 # разбить на отдельные хендлеры: код будет прозрачнее
 def choose_way(message: Message):
@@ -97,12 +95,14 @@ def choose_way(message: Message):
     else:
         return ''
 
+
 def choose_way_one(listRow):
     main.loggerDEBUG.debug('поиск по группе')
     listRow[3] = 0
     listRow[4] = 0
     listRow[5] = ''
     dataBase.edit_row(listRow[0], listRow)
+
 
 def choose_way_two(listRow):
     main.loggerDEBUG.debug('поиск по преподавателю')
@@ -111,11 +111,13 @@ def choose_way_two(listRow):
     listRow[6] = ''
     dataBase.edit_row(listRow[0], listRow)
 
+
 def choose_way_three(listRow):
     main.loggerDEBUG.debug('вывод всего расписания')
     listRow[3] = 2
     listRow[4] = 0
     dataBase.edit_row(listRow[0], listRow)
+
 
 def choose_way_four(listRow):
     main.loggerDEBUG.debug('когда свободна Б209?')
@@ -123,38 +125,40 @@ def choose_way_four(listRow):
     listRow[4] = 0
     dataBase.edit_row(listRow[0], listRow)
 
+
 def group_zero_parameters(message: Message):
     main.loggerDEBUG.debug('поиск по группе (0)')
     row = dataBase.get_row_by_id(message.from_user.id)
-    list = row_to_list(row)
+    listRow = row_to_list(row)
 
     gr = jsonFormatter.search_group(message.text)
     if not gr == 'ERROR':
-        list[5] = message.text.upper()
-        list[4] += 1
-        dataBase.edit_row(list[0], list)
+        listRow[5] = message.text.upper()
+        listRow[4] += 1
+        dataBase.edit_row(listRow[0], listRow)
         return strings.ENTER_DATE
     elif not message.text == strings.SEARCH_BY_GROUP:
         return strings.MESSAGE_ERROR_GROUP
     else:
         return ''
 
+
 def group_one_parameter(message: Message):
     main.loggerDEBUG.debug('поиск по группе (1)')
     row = dataBase.get_row_by_id(message.from_user.id)
-    list = row_to_list(row)
+    listRow = row_to_list(row)
     if message.text == '1':
         date = datetime.datetime.today()
-        group = jsonFormatter.search_by_group_and_date(list[5], wJSON.week_to_string(date.weekday()))
+        group = jsonFormatter.search_by_group_and_date(listRow[5], jsonFormatter.week_to_string(date.weekday()))
         return group
     elif message.text == '7':
-        group = jsonFormatter.search_by_group(list[5])
+        group = jsonFormatter.search_by_group(listRow[5])
         return group
     else:
         try:
             arrayData = data_to_array(message.text)
             date = datetime.datetime(int(arrayData[2]), int(arrayData[1]), int(arrayData[0]))
-            group = jsonFormatter.search_by_group_and_date(list[5], wJSON.week_to_string(date.weekday()))
+            group = jsonFormatter.search_by_group_and_date(listRow[5], jsonFormatter.week_to_string(date.weekday()))
             return group
         except:
             return 'Некорректный ввод даты.\n' \
@@ -164,12 +168,12 @@ def group_one_parameter(message: Message):
 def teacher_zero_parameters(message: Message):
     main.loggerDEBUG.debug('поиск по преподавателю (0)')
     row = dataBase.get_row_by_id(message.from_user.id)
-    list = row_to_list(row)
+    listRow = row_to_list(row)
     tch = jsonFormatter.search_subject(message.text)
     if not tch == 'ERROR':
-        list[6] = message.text.upper()
-        list[4] += 1
-        dataBase.edit_row(list[0], list)
+        listRow[6] = message.text.upper()
+        listRow[4] += 1
+        dataBase.edit_row(listRow[0], listRow)
         return strings.ENTER_DATE
     elif not message.text == strings.SEARCH_BY_TEACHER:
         return strings.MESSAGE_ERROR_TEACHER
@@ -180,19 +184,19 @@ def teacher_zero_parameters(message: Message):
 def teacher_one_parameter(message: Message):
     main.loggerDEBUG.debug('поиск по преподавателю (1)')
     row = dataBase.get_row_by_id(message.from_user.id)
-    list = row_to_list(row)
+    listRow = row_to_list(row)
     if message.text == '1':
         date = datetime.datetime.today()
-        teacher = jsonFormatter.search_by_teacher_and_date(list[6], wJSON.week_to_string(date.weekday()))
+        teacher = jsonFormatter.search_by_teacher_and_date(listRow[6], jsonFormatter.week_to_string(date.weekday()))
         return teacher
     elif message.text == '7':
-        teacher = jsonFormatter.search_by_teacher(list[6])
+        teacher = jsonFormatter.search_by_teacher(listRow[6])
         return teacher
     else:
         try:
             arrayData = data_to_array(message.text)
             date = datetime.datetime(int(arrayData[2]), int(arrayData[1]), int(arrayData[0]))
-            teacher = jsonFormatter.search_by_teacher_and_date(list[6], wJSON.week_to_string(date.weekday()))
+            teacher = jsonFormatter.search_by_teacher_and_date(listRow[6], jsonFormatter.week_to_string(date.weekday()))
             return teacher
         except:
             return 'Некорректный ввод даты.\n' \
@@ -202,14 +206,14 @@ def teacher_one_parameter(message: Message):
 def all_time_table_one_parameters(message: Message):
     main.loggerDEBUG.debug('вывод всего расписания (0)')
     row = dataBase.get_row_by_id(message.from_user.id)
-    list = row_to_list(row)
+    listRow = row_to_list(row)
     if message.text == 'все':
         s = jsonFormatter.print_all_time_table()
         return s
     elif message.text == 'выйти':
-        list[4] = 0
-        list[3] = -1
-        dataBase.edit_row(list[0], list)
+        listRow[4] = 0
+        listRow[3] = -1
+        dataBase.edit_row(listRow[0], listRow)
     else:
         year = f'{(int(message.text[2:4]) % 100)}'
         strGroup = ''
@@ -244,14 +248,14 @@ def catching_stupid_in_third(text):
 
 def data_to_array(strData):
     array = ['', '', '']
-    l = len(strData)
-    if l == 10:
+    ln = len(strData)
+    if ln == 10:
         array[0] = strData[0:2]
         array[1] = strData[3:5]
         array[2] = strData[6:]
         if strData[2] != strData[5]:
             array = ['', '', '']
-    elif l == 8:
+    elif ln == 8:
         array[0] = strData[0:2]
         array[1] = strData[2:4]
         array[2] = strData[4:]
@@ -277,10 +281,11 @@ def sendNotif(s):
 
             chat_id = row[2]
             try:
-                db.close()
-                bot.send_message(chat_id, strings.MESSAGE_SEND_NOTIFICATION_first + s + strings.MESSAGE_SEND_NOTIFICATION_second)
+                #db.close()
+                bot.send_message(chat_id,
+                                 strings.MESSAGE_SEND_NOTIFICATION_first + s + strings.MESSAGE_SEND_NOTIFICATION_second)
             except:
-                db.close()
+                #db.close()
                 main.loggerDEBUG.warning(f'----- в chat_id: {chat_id} уведомление отправлено не было')
 
 
@@ -295,11 +300,12 @@ def isAdmin(id):
 
         user_id = row[1]
         if int(user_id) == int(id):
-            db.close()
+            #db.close()
             return True
-    db.close()
+    #db.close()
     return False
 
+
 def row_to_list(row):
-    list = [row[0], row[1], row[2], row[3], row[4], row[5], row[6]]
-    return list
+    llist = [row[0], row[1], row[2], row[3], row[4], row[5], row[6]]
+    return llist

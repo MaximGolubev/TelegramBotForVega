@@ -1,6 +1,5 @@
 import json
 
-
 ''' 
 Это интерфейс для классов, которые будут получать данные 
 Сейчас ваш провайдер - тестовый файл, но потом им может стать сервер,
@@ -27,7 +26,7 @@ class FileProvider(AbstractProvider):
             self.data = json.load(file)
 
     def search_group(self, g):  # -Работает
-        gr = text_to_group(g)
+        gr = JsonFormatter.text_to_group(g)
         if gr == 'ERROR':
             return 'ERROR'
         group = gr.upper()
@@ -47,8 +46,35 @@ class FileProvider(AbstractProvider):
 
 
 class JsonFormatter:
-    def __init__(self, provider: FileProvider):
+    def __init__(self, provider):
         self.provider = provider
+
+    @staticmethod
+    def week_to_string(codeDayWeek):
+        if codeDayWeek == 0:
+            return 'ПН'
+        elif codeDayWeek == 1:
+            return 'ВТ'
+        elif codeDayWeek == 2:
+            return 'СР'
+        elif codeDayWeek == 3:
+            return 'ЧТ'
+        elif codeDayWeek == 4:
+            return 'ПТ'
+        elif codeDayWeek == 5:
+            return 'СБ'
+        else:
+            return 'ВС'
+
+    @staticmethod
+    def text_to_group(text):
+        if len(text) == 10:
+            gr = text[:4] + "-" + text[5:7] + "-" + text[8:]
+        elif len(text) == 8:
+            gr = text[:4] + "-" + text[4:6] + "-" + text[6:]
+        else:
+            return 'ERROR'
+        return gr
 
     def search_group(self, group):
         return self.provider.search_group(group)
@@ -75,8 +101,7 @@ class JsonFormatter:
                 timeTable += text + '\n'
                 indexDay += 1
             else:
-                timeTable += arrayDays[indexDay] + ':\n'
-                timeTable += text + '\n\n'
+                timeTable += f'{arrayDays[indexDay]}:\n{text}\n\n'
                 indexDay += 1
         return timeTable
 
@@ -102,9 +127,8 @@ class JsonFormatter:
                                 strTimeTable[numberLesson] += gr['group']
 
         timeTable = dayWeek + ':\n'
-        for i in range(0, 7):
-            if arrayPars[i]:
-                timeTable += strTimeTable[i] + '\n'
+        for i, lesson in enumerate(arrayPars):
+            timeTable += f'{strTimeTable[i]} \n' if lesson else ''
 
         if timeTable == dayWeek + ':\n':
             return 'Занятия отсутствуют.'
@@ -122,12 +146,10 @@ class JsonFormatter:
         for day in arrayDays:
             s = self.search_by_teacher_and_date(teacher, day)
             if not s == 'Занятия отсутствуют.':
-                timeTable += s + '\n'
-                indexDay += 1
+                timeTable += f'{s}\n'
             else:
-                timeTable += arrayDays[indexDay] + ':\n'
-                timeTable += s + '\n\n'
-                indexDay += 1
+                timeTable += f'{arrayDays[indexDay]}:\n{s}\n\n'
+            indexDay += 1
         return timeTable
 
     def print_all_time_table_with_course(self, strGroup, courseYear):
@@ -156,13 +178,11 @@ class JsonFormatter:
         return timeTable
 
     def when_b209_is_free(self):
-        countPars = [[0] * 7] * 7
-        for i in range(0, 7):
-            for j in range(0, 7):
-                countPars[i][j] = 0
+        countPars = [0] * 7
+        for i in range(7):
+            countPars[i] = [0] * 7
         arrayDays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС']
         indexDay = 0
-
         for gr in self.provider.data['groups']:
             for day in gr['days']:
                 for lesson in day['pars']:
@@ -175,17 +195,20 @@ class JsonFormatter:
         timeTable = ''
         indexDay = 0
         for dayWeek in arrayDays:
-            timeTable += dayWeek + ':\n'
+            timeTable += f'{dayWeek}:\n'
+
             for i in range(0, 7):
                 count = countPars[indexDay][i]
+                timeTable += f'{i + 1} - '
                 if count == 0:
-                    timeTable += f'{i + 1} - полностью свободна\n'
+                    timeTable += 'полностью свободна\n'
                 elif count == 1:
-                    timeTable += f'{i + 1} - свободна на половину\n'
+                    timeTable += 'свободна на половину\n'
                 else:
-                    timeTable += f'{i + 1} - занята\n'
+                    timeTable += 'занята\n'
             timeTable += '\n'
             indexDay += 1
+
         return timeTable
 
     # для query -----------------------------------------------------
@@ -208,20 +231,27 @@ class JsonFormatter:
 
     def search_group_by_two_parts(self, strGr, strOne):
         arrayGroupsIn = self.search_group_by_one_part(strGr)
-        l = len(arrayGroupsIn)
-        arrayGroupsOut = []
-        for i in range(0, l):
-            if not arrayGroupsIn[i][5:7].find(strOne) == -1:
-                arrayGroupsOut.append(arrayGroupsIn[i])
+        arrayGroupsOut = [aGIn for aGIn in arrayGroupsIn if not aGIn[5:7].find(strOne) == -1]
+
+        #ln = len(arrayGroupsIn)
+        #arrayGroupsOut = []
+        #for i in range(0, ln):
+        #    if not arrayGroupsIn[i][5:7].find(strOne) == -1:
+        #        arrayGroupsOut.append(arrayGroupsIn[i])
+
         return arrayGroupsOut
 
     def search_group_by_three_parts(self, strGr, strOne, strTwo):
         arrayGroupsIn = self.search_group_by_two_parts(strGr, strOne)
-        l = len(arrayGroupsIn)
-        arrayGroupsOut = []
-        for i in range(0, l):
-            if not arrayGroupsIn[i][8:].find(strTwo) == -1:
-                arrayGroupsOut.append(arrayGroupsIn[i])
+
+        arrayGroupsOut = [aGIn for aGIn in arrayGroupsIn if not aGIn[8:].find(strTwo) == -1]
+
+        #l = len(arrayGroupsIn)
+        #arrayGroupsOut = []
+        #for i in range(0, l):
+        #    if not arrayGroupsIn[i][8:].find(strTwo) == -1:
+        #        arrayGroupsOut.append(arrayGroupsIn[i])
+
         return arrayGroupsOut
 
     def outputFormat(self, jsonDay):
@@ -233,39 +263,12 @@ class JsonFormatter:
             strTimeTable[numberLesson] += lesson['place'] + '\n'
 
         dayTimeTable = jsonDay['day'] + ':\n'
-        for i in range(0, 7):
-            dayTimeTable += strTimeTable[i]
-            if strTimeTable[i] == '':
-                dayTimeTable += f'{i + 1} - '
-                dayTimeTable += 'пусто\n'
+        for i, time in enumerate(strTimeTable):
+            dayTimeTable += time if time != '' else f'{i + 1} - пусто\n'
+
+        #for i in range(0, 7):
+        #    dayTimeTable += strTimeTable[i]
+        #    if strTimeTable[i] == '':
+        #        dayTimeTable += f'{i + 1} - пусто\n'
+
         return dayTimeTable
-
-# ------------------ВТОРОСТЕПЕННЫЕ ФУНКЦИИ------------------
-
-
-def week_to_string(codeDayWeek):
-    if codeDayWeek == 0:
-        return 'ПН'
-    elif codeDayWeek == 1:
-        return 'ВТ'
-    elif codeDayWeek == 2:
-        return 'СР'
-    elif codeDayWeek == 3:
-        return 'ЧТ'
-    elif codeDayWeek == 4:
-        return 'ПТ'
-    elif codeDayWeek == 5:
-        return 'СБ'
-    else:
-        return 'ВС'
-
-
-def text_to_group(text):
-    if len(text) == 10:
-        gr = text[:4] + "-" + text[5:7] + "-" + text[8:]
-    elif len(text) == 8:
-        gr = text[:4] + "-" + text[4:6] + "-" + text[6:]
-    else:
-        return 'ERROR'
-    return gr
-

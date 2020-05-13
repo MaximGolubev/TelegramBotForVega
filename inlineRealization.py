@@ -51,7 +51,7 @@ def len_one(arrayCommands):
             main.loggerDEBUG.debug('QUERY: ' + '1 (по преподавателю)')
             for i in range(0, l):
                 date = datetime.datetime.today()
-                strOut = jsonFormatter.search_by_teacher_and_date(arrayTeachersIn[i], wJSON.week_to_string(date.weekday()))
+                strOut = jsonFormatter.search_by_teacher_and_date(arrayTeachersIn[i], jsonFormatter.week_to_string(date.weekday()))
                 out = types.InlineQueryResultArticle(
                     id=f'{(i+1)}', title=arrayTeachersIn[i],
                     description='Расписание на текущий день.',
@@ -81,14 +81,14 @@ def len_two(arrayCommands):
             except:
                 return arrayTeachersOut
             for i in range(0, l):
-                strOut = jsonFormatter.search_by_teacher_and_date(arrayTeachersIn[i], wJSON.week_to_string(date.weekday()))
+                strOut = jsonFormatter.search_by_teacher_and_date(arrayTeachersIn[i], jsonFormatter.week_to_string(date.weekday()))
                 out = types.InlineQueryResultArticle(
                     id=f'{(i+1)}', title=arrayTeachersIn[i],
                     description='Расписание на: '
                                 + arrayData[0] + '.'
                                 + arrayData[1] + '.'
                                 + arrayData[2] + ' - '
-                                + wJSON.week_to_string(date.weekday()),
+                                + jsonFormatter.week_to_string(date.weekday()),
                     input_message_content=types.InputTextMessageContent(message_text=strOut))
                 arrayTeachersOut.append(out)
         return arrayTeachersOut
@@ -115,14 +115,14 @@ def len_four(arrayCommands):
                     date = datetime.datetime(int(arrayData[2]), int(arrayData[1]), int(arrayData[0]))
                 except:
                     return arrayGroupsOut
-                strOut = jsonFormatter.search_by_group_and_date(arrayGroupsIn[i], wJSON.week_to_string(date.weekday()))
+                strOut = jsonFormatter.search_by_group_and_date(arrayGroupsIn[i], jsonFormatter.week_to_string(date.weekday()))
                 out = types.InlineQueryResultArticle(
                     id=f'{(i+1)}', title=arrayGroupsIn[i],
                     description='Расписание на: '
                                 + arrayData[0] + '.'
                                 + arrayData[1] + '.'
                                 + arrayData[2] + ' - '
-                                + wJSON.week_to_string(date.weekday()),
+                                + jsonFormatter.week_to_string(date.weekday()),
                     input_message_content=types.InputTextMessageContent(message_text=strOut))
                 arrayGroupsOut.append(out)
         return arrayGroupsOut
@@ -132,7 +132,7 @@ def func_for(arrayGroupsIn):
     arrayGroupsOut = []
     for i in range(0, len(arrayGroupsIn)):
         date = datetime.datetime.today()
-        strOut = jsonFormatter.search_by_group_and_date(arrayGroupsIn[i], wJSON.week_to_string(date.weekday()))
+        strOut = jsonFormatter.search_by_group_and_date(arrayGroupsIn[i], jsonFormatter.week_to_string(date.weekday()))
         out = types.InlineQueryResultArticle(
             id=f'{(i+1)}', title=arrayGroupsIn[i],
             description='Расписание на текущий день.',

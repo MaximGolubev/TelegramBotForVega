@@ -19,7 +19,7 @@ MESSAGE_ERROR_GROUP = "Такой группы не существует."
 MESSAGE_ERROR_TEACHER = "Такой преподаватель у нас не работает("
 MESSAGE_ERROR_ALL_TIME_TABLE = "Выберите снова."
 MESSAGE_SEND_NOTIFICATION_first = "Расписание на БК-536 изменилось!\n"
-MESSAGE_SEND_NOTIFICATION_second = '\n'.join(['Проверьте его здесь или на официальном сайте:',
+MESSAGE_SEND_NOTIFICATION_second = '\n'.join(['\nПроверьте его здесь или на официальном сайте:',
                                   'http://www.vega.fcyb.mirea.ru/'])
 
 INSTROUCTIONS_HELP = '\n'.join(["help - дерево параметров поиска",
